@@ -17,7 +17,7 @@
 
     End Function
 
-    Public Function illustrator(state As Int16, guid As Guid)
+    Public Function illustrator(state, guid)
         'Primary illustrator handshake util. Passes rhino operations and arguments to relevant extendscript process.
 
         'states:

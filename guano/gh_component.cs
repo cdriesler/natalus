@@ -2,11 +2,11 @@
 using Rhino;
 using Grasshopper.Kernel;
 
-namespace $safeprojectname$
+namespace project_name
 {
-    public class $itemname$ : GH_Component
+    public class component_name : GH_Component
     {
-        public $itemname$() : base("NAME", "LABEL", "DESC", "TAB", "SUB-TAB")
+        public component_name() : base("NAME", "LABEL", "DESC", "TAB", "SUB-TAB")
         {
         }
 
@@ -22,12 +22,12 @@ protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager 
 
 protected override void SolveInstance(IGH_DataAccess DA)
 {
-
-}
+    //magic
+        }
 
 public override Guid ComponentGuid
 {
     //get { return new Guid("GUID-HERE"); }
-}
+        }
     }
 }
