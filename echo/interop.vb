@@ -17,8 +17,8 @@
 
     End Function
 
-    Public Function illustrator(state, guid)
-        'Primary illustrator handshake util. Passes rhino operations and arguments to relevant extendscript process.
+    Public Function illustrator(state, stagingFile)
+        'Primary illustrator handshake util. Passes state of rhino changes and reads from staging file.
 
         'states:
         '0: create new path
@@ -27,7 +27,7 @@
         Dim illustratorRef
         illustratorRef = CreateObject("Illustrator.Application")
 
-        illustratorRef.DoJavaScriptFile("E:\git\gravy\illustrator_boat\Inbound\ai__get lines.jsx", {guid})
+        'illustratorRef.DoJavaScriptFile("TRANSFORMATION FILEPATH", {state, stagingFile})
 
     End Function
 

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using Rhino;
+using Rhino.DocObjects;
 using Grasshopper.Kernel;
 
-namespace project_name
+namespace guano
 {
-    public class component_name : GH_Component
+    public class new_item_test : GH_Component
     {
-        public component_name() : base("NAME", "LABEL", "DESC", "TAB", "SUB-TAB")
+        public new_item_test() : base("New Item", "NewItem", "Returns GUID of all new items.", "Natalus", "debug")
         {
         }
 
@@ -17,17 +19,28 @@ protected override void RegisterInputParams(GH_Component.GH_InputParamManager pM
 
 protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 {
-    //pManager.Add *
+            pManager.AddTextParameter("GUIDs", "g", "Latest GUIDS", GH_ParamAccess.list);
         }
 
 protected override void SolveInstance(IGH_DataAccess DA)
 {
-    //magic
+            RhinoDoc.AddRhinoObject += OnObjectAdded;
+
+            List<string> id = new List<string>();
         }
 
-public override Guid ComponentGuid
+        public static void OnObjectAdded(object sender, RhinoObjectEventArgs ea)
+        {
+        for (int i = 0, i < ea.TheObject.       
+        }
+
+        public override Guid ComponentGuid
 {
     //get { return new Guid("GUID-HERE"); }
         }
     }
+
+
 }
+
+
