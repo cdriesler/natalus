@@ -49,7 +49,7 @@ protected override void SolveInstance(IGH_DataAccess DA)
                 return;
             }
 
-            string ghPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "UserObjects\\Natalus\\");
+            string ghPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "UserObjects\\Natalus\\NATA\\");
             string docName = RhinoDoc.ActiveDoc.Name;
 
             string activeSyncDirectory = ghPath;
@@ -92,6 +92,11 @@ protected override void SolveInstance(IGH_DataAccess DA)
                         System.IO.File.WriteAllText(activeSyncDirectory + activeSyncDelta, "0");
                         System.IO.File.WriteAllText(activeSyncDirectory + activeSyncRuntime, "0");
                     }
+                    //Reset delta file if latest object runtime is less than last recorded runtime. (File has been closed and reopened.)
+                    else if (RhinoDoc.ActiveDoc.Objects.MostRecentObject().RuntimeSerialNumber <= Convert.ToInt32(System.IO.File.ReadAllText(activeSyncDirectory + activeSyncRuntime)))
+                    {
+                        System.IO.File.WriteAllText(activeSyncDirectory + activeSyncDelta, "0");
+                    }
                     else
                     {
                         //System.IO.File.AppendAllText(activeSyncDirectory + activeSyncFileName, "session placeholder" + Environment.NewLine);
@@ -121,7 +126,13 @@ protected override void SolveInstance(IGH_DataAccess DA)
             ////Begin parsing of curve geometry.
             //Assign input geometry to curve list.
             List<Rhino.Geometry.Curve> allCurves = new List<Rhino.Geometry.Curve>();
-            DA.GetDataList<Rhino.Geometry.Curve>(0, allCurves);
+
+            //Reset delta if geo input is empty.
+            int delta = 0;
+            if (!DA.GetDataList(0, allCurves))
+            {
+                delta = 0;
+            }
 
             //Create lists for tracked and untracked items.
             List<Rhino.Geometry.Curve> trackedGeo = new List<Rhino.Geometry.Curve>();
@@ -172,10 +183,10 @@ protected override void SolveInstance(IGH_DataAccess DA)
                 DA.SetData(2, trackedGeo.Count);
 
                 ////Define type of change document just experienced.
-                //Read delta file.
+                //Read delta file for previous curve count. ***Delta file is NOT the latest change. (Rename delta to count?)
                 string deltaFileData = System.IO.File.ReadAllText(deltaPath);
                 int prevCount = Convert.ToInt32(deltaFileData);
-                int delta = trackedGeo.Count - prevCount;
+                delta = trackedGeo.Count - prevCount;
                 System.IO.File.WriteAllText(deltaPath, trackedGeo.Count.ToString());
 
                 //Determine delta state.
@@ -197,22 +208,31 @@ protected override void SolveInstance(IGH_DataAccess DA)
                     deltaState = 2;
                 }
 
-                //Send curve profile to illustrator sync utility.
-                int errorCode = nata_ai.curve(trackedGeo, typeList, delta, deltaState);
+                //Grab past runtime before starting conversion.
+                uint prev_runtime = Convert.ToUInt32(System.IO.File.ReadAllText(activeSyncDirectory + activeSyncRuntime));
 
-                if (errorCode == 1)
+                //Send curve profile to illustrator sync utility.
+                string errorCode = nata_ai.curve(trackedGeo, typeList, delta, deltaState, prev_runtime);
+
+                //Error handling from nata_ai process.
+                if (errorCode.Contains("1"))
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Conversion error in polyline routine.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, errorCode);
                     return;
                 }
-                else if (errorCode == 2)
+                else if (errorCode.Contains("2"))
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Conversion error in circle routine.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, errorCode);
+                    return;
+                }
+                else if (errorCode.Contains("3"))
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, errorCode);
                     return;
                 }
             }
 
-            //Basic error handling.
+            //Generic error handling.
             else
             {
                 if (activeBool == false)
