@@ -57,6 +57,7 @@ protected override void SolveInstance(IGH_DataAccess DA)
             string activeSyncDelta = docName.Replace(".3dm", "_delta.nata");
             string activeSyncStaging = docName.Replace(".3dm", "_staging.nata");
             string activeSyncRuntime = docName.Replace(".3dm", "_runtime.nata");
+            string activeSyncTypelist = docName.Replace(".3dm", "_typelist.nata");
 
             string syncPath = activeSyncDirectory + activeSyncFileName;
             string deltaPath = activeSyncDirectory + activeSyncDelta;
@@ -104,14 +105,16 @@ protected override void SolveInstance(IGH_DataAccess DA)
                 }
 
                 //Verify existence, or create data staging file.
-                if (!System.IO.File.Exists(activeSyncDirectory + activeSyncStaging))
+                /* if (!System.IO.File.Exists(activeSyncDirectory + activeSyncStaging))
                 {
                     System.IO.File.Create(activeSyncDirectory + activeSyncStaging);
                 }
                 else if (System.IO.File.Exists(activeSyncDirectory + activeSyncStaging))
                 {
-                    System.IO.File.WriteAllText(activeSyncDirectory + activeSyncStaging, "");
-                }
+                   
+                } */
+
+                System.IO.File.WriteAllText(activeSyncDirectory + activeSyncStaging, "");
 
                 //Set continutation token to allow work with geometry.
                 C_1 = 1;
@@ -144,12 +147,12 @@ protected override void SolveInstance(IGH_DataAccess DA)
             //2 - Circle
             List<int> typeList = new List<int>();
 
-
             //Sort curve geometry into tracked and untracked lists.
             if (C_1 == 1)
             {
                 for (int index = 0; index < allCurves.Count; index++)
                 {
+                    string objTypeName = allCurves[index].GetType().ToString();
                     //Non-linear curve filter routine.
                     if (allCurves[index].Degree != 1)
                     {
@@ -157,6 +160,8 @@ protected override void SolveInstance(IGH_DataAccess DA)
                         {
                             trackedGeo.Add(allCurves[index]);
                             typeList.Add(2);
+
+                            System.IO.File.AppendAllText(activeSyncDirectory + activeSyncTypelist, objTypeName + "|2" + Environment.NewLine);
                         }
                         else
                         {
@@ -167,13 +172,17 @@ protected override void SolveInstance(IGH_DataAccess DA)
                     else if (allCurves[index].Degree == 1)
                     {
                         trackedGeo.Add(allCurves[index]);
-                        if (allCurves[index].IsPolyline())
+                        if (objTypeName.Contains("poly"))
                         {
                             typeList.Add(1);
+
+                            System.IO.File.AppendAllText(activeSyncDirectory + activeSyncTypelist, objTypeName + "|1" + Environment.NewLine);
                         }
                         else
                         {
                             typeList.Add(0);
+
+                            System.IO.File.AppendAllText(activeSyncDirectory + activeSyncTypelist, objTypeName + "|0" + Environment.NewLine);
                         }
                     }
                 }
@@ -210,6 +219,7 @@ protected override void SolveInstance(IGH_DataAccess DA)
 
                 //Grab past runtime before starting conversion.
                 uint prev_runtime = Convert.ToUInt32(System.IO.File.ReadAllText(activeSyncDirectory + activeSyncRuntime));
+
 
                 //Send curve profile to illustrator sync utility.
                 string errorCode = nata_ai.curve(trackedGeo, typeList, delta, deltaState, prev_runtime);

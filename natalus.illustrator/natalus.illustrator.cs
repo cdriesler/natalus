@@ -33,7 +33,7 @@ namespace natalus.illustrator
                 Rhino.DocObjects.RhinoObject[] newestObjs = Rhino.RhinoDoc.ActiveDoc.Objects.AllObjectsSince(prev_runtime);
                 for (int i = 0; i < newestObjs.Length; i++)
                 {
-                    if (newestObjs[i].GetType().ToString() == "Rhino.DocObjects.CurveObject") //Enum value is 4.
+                    if (newestObjs[i].GetType().ToString().Contains("Curve")) //Enum value is 4.
                     {
                         newestObjects.Add(newestObjs[i]);
                     }
@@ -53,9 +53,13 @@ namespace natalus.illustrator
             string ghPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "UserObjects\\Natalus\\NATA\\");
             string docName = RhinoDoc.ActiveDoc.Name;
 
-            //Debug util: record length of geo set and current deltaState.
+            //Debug util: record length of geo set and current deltaState. List new GUIDS.
             string activeSyncNewCount = docName.Replace(".3dm", "_newcount.nata");
-            System.IO.File.WriteAllText(ghPath + activeSyncNewCount, geo.Count.ToString() + "|" + deltaState.ToString());
+            System.IO.File.WriteAllText(ghPath + activeSyncNewCount, geo.Count.ToString() + " (geo count)|" + deltaState.ToString() + " (delta state)|" + guidList.Count.ToString() + " (guid count)");
+            for (int i = 0; i < guidList.Count; i++)
+            {
+                System.IO.File.AppendAllText(ghPath + activeSyncNewCount, guidList[i]);
+            }
 
             //Sort incoming geometry data into discrete type lists.
             List<Rhino.Geometry.Curve> lineList = new List<Rhino.Geometry.Curve>();
@@ -119,14 +123,16 @@ namespace natalus.illustrator
 
             string stagingFile = ghPath + activeSyncStaging;
 
+            int rollingIndex = 0;
+
             //Call conversion methods. Handling for empty lists within each method.
-            int subError = line(deltaState, lineList);
-            if (subError == 3)
-            {
-                return "Error Code 3: Failure to parse GUID.";
-            }
-            polyline(deltaState, polylineList);
-            circle(deltaState, circleList);
+            int increment = line(deltaState, lineList, rollingIndex, guidReferenceList, guidList);
+            rollingIndex = rollingIndex + increment;
+
+            polyline(deltaState, polylineList, rollingIndex, guidReferenceList, guidList);
+            rollingIndex = rollingIndex + increment;
+
+            circle(deltaState, circleList, rollingIndex, guidReferenceList, guidList);
 
             //Pass current change state to Illustrator and ask it to update.
             echo.interop echo = new interop();
@@ -147,7 +153,7 @@ namespace natalus.illustrator
         }
 
         //Line conversion.
-        private static int line(int state, List<Rhino.Geometry.Curve> curves)
+        private static int line(int state, List<Rhino.Geometry.Curve> curves, int rIndex, List<int> gRefIndex, List<string> guid)
         {
             string ghPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "UserObjects\\Natalus\\NATA\\");
             string docName = RhinoDoc.ActiveDoc.Name;
@@ -159,54 +165,49 @@ namespace natalus.illustrator
             //Additive line conversion logic.
             if (state == 0)
             {
-                string id = "guid_placeholder";
-
                 for (int i = 0; i < curves.Count; i++)
                 {
-                    //Generate geometry GUID. To be used as pathItem.name in Illustrator.
-                    try
-                    {
-                        Grasshopper.Kernel.Types.IGH_GeometricGoo newCurve = curves[i] as Grasshopper.Kernel.Types.IGH_GeometricGoo;
-                        id = newCurve.ReferenceID.ToString();
-                    }
-                    catch
-                    {
-                        return 3;
-                    }
+                    string id = guid[gRefIndex[rIndex]];
 
                     //Organize data into .nata structure.
-                    string lineData = state.ToString() + "|" + "0" + "|" + id + "|" + "Coordinates Placeholder" + "\n";
+                    //"delta state" | "geo type" | "guid" | "geometric information"
+                    string lineData = state.ToString() + "|" + "0" + "|" + id + "|" + "Coordinates Placeholder" + Environment.NewLine;
 
                     //Add information to staging file.
                     System.IO.File.AppendAllText(stagingFile, lineData);
 
-                    return 0;
+                    rIndex++;
                 }
-                return 0;
+
+                echo.interop echo = new echo.interop();
+
+                echo.locate(0, "Additive line process iterated " + rIndex.ToString() + " times.");
+
+                return rIndex;
             }
             //Subtractve line conversion logic.
             if (state == 1)
             {
                 //TODO
-                return 0;
+                return rIndex;
             }
             //Tranformative line conversion logic.
             if (state == 2)
             {
                 //TODO
-                return 0;
+                return rIndex;
             }
-            return 0;
+            return rIndex;
         }
         
         //Linear polyline conversion.
-        private static void polyline(int state, List<Rhino.Geometry.Polyline> curves)
+        private static void polyline(int state, List<Rhino.Geometry.Polyline> curves, int rIndex, List<int> gRefIndex, List<string> guid)
         {
             //Linear polyline conversion logic.
         }
 
         //Circle conversion.
-        private static void circle(int state, List<Rhino.Geometry.Circle> curves)
+        private static void circle(int state, List<Rhino.Geometry.Circle> curves, int rIndex, List<int> gRefIndex, List<string> guid)
         {
             //Circle converstion logic.
         }
