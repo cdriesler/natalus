@@ -129,7 +129,7 @@ namespace natalus.illustrator
             int increment = line(deltaState, lineList, rollingIndex, guidReferenceList, guidList);
             rollingIndex = rollingIndex + increment;
 
-            polyline(deltaState, polylineList, rollingIndex, guidReferenceList, guidList);
+            increment = polyline(deltaState, polylineList, rollingIndex, guidReferenceList, guidList);
             rollingIndex = rollingIndex + increment;
 
             circle(deltaState, circleList, rollingIndex, guidReferenceList, guidList);
@@ -201,7 +201,7 @@ namespace natalus.illustrator
         }
         
         //Linear polyline conversion.
-        private static void polyline(int state, List<Rhino.Geometry.Polyline> curves, int rIndex, List<int> gRefIndex, List<string> guid)
+        private static int polyline(int state, List<Rhino.Geometry.Polyline> curves, int rIndex, List<int> gRefIndex, List<string> guid)
         {
             //Linear polyline conversion logic.
         }

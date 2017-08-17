@@ -172,7 +172,7 @@ protected override void SolveInstance(IGH_DataAccess DA)
                     else if (allCurves[index].Degree == 1)
                     {
                         trackedGeo.Add(allCurves[index]);
-                        if (objTypeName.Contains("poly"))
+                        if (objTypeName.Contains("Poly"))
                         {
                             typeList.Add(1);
 
