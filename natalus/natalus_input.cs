@@ -7,6 +7,8 @@ using Grasshopper.Kernel;
 using echo;
 using natalus.illustrator;
 
+//NOTE: Old component implementation currently being scrapped for parts.
+
 namespace natalus
 {
     public class natalus_input : GH_Component

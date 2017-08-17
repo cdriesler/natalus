@@ -9,6 +9,8 @@ using Grasshopper.Kernel;
 
 using echo;
 
+//NOTE: Previous implementation of line conversion currently being scrapped for parts.
+
 namespace natalus.illustrator
 {
     public class nata_ai
@@ -204,6 +206,8 @@ namespace natalus.illustrator
         private static int polyline(int state, List<Rhino.Geometry.Polyline> curves, int rIndex, List<int> gRefIndex, List<string> guid)
         {
             //Linear polyline conversion logic.
+
+            return 0;
         }
 
         //Circle conversion.
