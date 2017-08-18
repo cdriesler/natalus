@@ -61,10 +61,9 @@
     <Compile Include="push_selection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\echo\interop.vbproj">
+    <ProjectReference Include="..\interop\interop.vbproj">
       <Project>{b7409aa0-72f4-422d-9504-3ccdb044a168}</Project>
       <Name>interop</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\natalus.utils\natalus.utils.csproj">
       <Project>{96fe622a-7437-41b2-9358-0af4064cda5c}</Project>

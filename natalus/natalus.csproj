@@ -63,10 +63,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\echo\interop.vbproj">
+    <ProjectReference Include="..\interop\interop.vbproj">
       <Project>{b7409aa0-72f4-422d-9504-3ccdb044a168}</Project>
       <Name>interop</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\natalus.illustrator\natalus.illustrator.csproj">
       <Project>{2dd9162d-a6ae-4df4-af3f-9dd16e046376}</Project>

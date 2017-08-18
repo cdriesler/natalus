@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,12 @@ namespace natalus.outbound
             string statePath = utils.file_structure.getPathFor("S00");           //S00 - Record state of change.
             string destinationPath = utils.file_structure.getPathFor("S10");    //S10 - Increasing selection, write GUIDs.
 
+            //Debug util: ping if event fired.
+            //int c = newSelectedObjects.Length;
+            //
+            //echo.interop debug = new echo.interop();
+            //debug.locate(c, destinationPath);
+
             //Write GUIDs to file.
             for (int i = 0; i < newSelectedObjects.Length; i++)
             {
@@ -28,7 +35,7 @@ namespace natalus.outbound
                 System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
             }
 
-            //Set state file S00 to 0: selection increasing.
+            //Set state file S00 to 1: selection increasing.
             System.IO.File.WriteAllText(statePath, "1");
 
             return 0;
@@ -48,7 +55,7 @@ namespace natalus.outbound
                 System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
             }
 
-            //Set state file S00 to 0: selection increasing.
+            //Set state file S00 to 2: selection decreasing.
             System.IO.File.WriteAllText(statePath, "2");
 
             return 1;
@@ -57,7 +64,7 @@ namespace natalus.outbound
         //Streamlined deselection process triggered on a full deselection or object deletion.
         public static int selectionReset()
         {
-            //Set state file S00 to 2: selection reset.
+            //Set state file S00 to 3: selection reset.
             string statePath = utils.file_structure.getPathFor("S00");
             System.IO.File.WriteAllText(statePath, "3");
 
@@ -66,45 +73,81 @@ namespace natalus.outbound
 
         //On RhinoDoc.Idle, push previously recorded changes in selection to Illustrator. 
         //Clear all S series .nata files when Illustrator finishes.
-        public static void selectionToIllustrator()
+        public static void selectionToIllustrator(int state)
         {
-            //Determine state of selection changes that just ocurred from .nata file S00.
+            //Reset S00 so that RhinoApp.Idle doesn't repeat this process.
             string statePath = utils.file_structure.getPathFor("S00");
-            int state = Convert.ToInt32(System.IO.File.ReadAllText(statePath));
+            System.IO.File.WriteAllText(statePath, "0");
+            //int state = Convert.ToInt32(System.IO.File.ReadAllText(statePath));
+
+            //Debug util: record state currently being passed as an argument.
+            string stateDebugPath = utils.file_structure.getPathFor("d00");
+            File.WriteAllText(stateDebugPath, "Current delta state: " + state.ToString());
 
             //Determine filepath for illustrator extendscript processes.
             string jsxPath = utils.file_structure.getJavascriptPath();
 
+            //Determine current document runtime to send to interop.
+            string runtime = utils.file_structure.getDocRuntime();
+
             //Create watchfile for Illustrator's confirmation state file.
-            string watchFilePath = utils.file_structure.getPathFor("S01");   //S01 - State file written by illustrator.
-            System.IO.FileSystemWatcher fw = new System.IO.FileSystemWatcher(watchFilePath);
-            fw.EnableRaisingEvents = true;
-            fw.Changed += (sender, e) => clearSelectionNata();
+            //TODO: Removed because it's not working. Intent was to reset sNATA files only after Illustrator was done.
+            //string watchFilePath = utils.file_structure.getPathFor("S01");   //S01 - State file written by illustrator.
+            //System.IO.FileSystemWatcher fw = new System.IO.FileSystemWatcher(watchFilePath);
+            //fw.EnableRaisingEvents = true;
+            //fw.Created += (sender, e) => clearSelectionNata();
+
+            //Create file for illustrator to use to declare its state. 
+            //TODO: Obselete for now. Poor communication structure.
+            //string aiStatePath = utils.file_structure.getPathFor("S01");
+            //System.IO.File.Create(aiStatePath);
+
+            //Establish file system watcher to trigger clearSelectionNata();
+            //TODO: Second attempt removed. Maybe find a better way?
+            //System.IO.FileSystemWatcher fw = new System.IO.FileSystemWatcher();
+            //fw.Path = aiStatePath;
+            //fw.NotifyFilter = NotifyFilters.LastWrite;
+            //fw.Changed += (sender, ea) => clearSelectionNata();
+
+            //Generate copies of current data that Illustrator will read.
+            string S10_Path = utils.file_structure.getPathFor("S10");
+            string S20_Path = utils.file_structure.getPathFor("S20");
+
+            if (File.Exists(S10_Path) == false)
+            {
+                File.WriteAllText(S10_Path, "empty");
+            }
+            if (File.Exists(S20_Path) == false)
+            {
+                File.WriteAllText(S20_Path, "empty");
+            }
+
+            string S11_Path = utils.file_structure.getPathFor("S11");
+            string S21_Path = utils.file_structure.getPathFor("S21");
+
+            File.WriteAllText(S11_Path, File.ReadAllText(S10_Path));
+            File.WriteAllText(S21_Path, File.ReadAllText(S20_Path));
 
             //Tell illustrator to run selection update script, based on state.
             echo.interop echo = new echo.interop();
-            echo.selection(state, jsxPath);
+            echo.selection(state, jsxPath, runtime);
+
+            //Clear original .nata file data.
+            clearSelectionNata();
         }
 
         //Clear selection .nata files on successful illustrator sync. Raise error if failure ocurred.
         private static void clearSelectionNata()
         {
-            //Determine paths for all selection .nata files.
-            string S00_Path = utils.file_structure.getPathFor("S00");
-            string S10_Path = utils.file_structure.getPathFor("S10");
-            string S20_Path = utils.file_structure.getPathFor("S20");
-            string S01_Path = utils.file_structure.getPathFor("S01");
+                //Determine paths for all selection .nata files.
+                string S10_Path = utils.file_structure.getPathFor("S10");
+                string S20_Path = utils.file_structure.getPathFor("S20");
+                string S01_Path = utils.file_structure.getPathFor("S01");
 
-            bool successBool = Convert.ToBoolean(System.IO.File.ReadAllText(S01_Path));
-
-            //Purge all text, making sure to change S01 last. When the fw.Changed event fires again, it will read false and stop the loop.
-            if (successBool == true)
-            {
-                System.IO.File.WriteAllText(S00_Path, "0");
+                //PURGE ALL TEXT
                 System.IO.File.WriteAllText(S10_Path, "");
                 System.IO.File.WriteAllText(S20_Path, "");
-                System.IO.File.WriteAllText(S01_Path, "");
-            }
+                System.IO.File.WriteAllText(S01_Path, "false");
         }
     }
 }

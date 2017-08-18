@@ -16,6 +16,8 @@ namespace natalus.utils
             string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
             string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\");
 
+            System.IO.Directory.CreateDirectory(nataPath);
+
             //Construct filepath for the given process code.
             string finalPath = nataPath + process + "." + rhinoDocRuntime + ".NATA";
 
@@ -27,6 +29,13 @@ namespace natalus.utils
             string jsxPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\JSX\\");
 
             return jsxPath;
+        }
+
+        public static string getDocRuntime()
+        {
+            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
+
+            return rhinoDocRuntime;
         }
     }
 }

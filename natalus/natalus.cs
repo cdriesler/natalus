@@ -62,7 +62,7 @@ namespace natalus
             RhinoDoc.UndeleteRhinoObject += (sender, e2) => ImplicitSelectionIncrease(sender, e2, sendBool);
 
             RhinoDoc.DeselectObjects += (sender, e1) => OnSelectionDecrease(sender, e1, sendBool);
-            RhinoDoc.DeleteRhinoObject += (sender, e2) => ImplicitSelectionDecrease(sender, e2, sendBool);
+            //RhinoDoc.DeleteRhinoObject += (sender, e2) => ImplicitSelectionDecrease(sender, e2, sendBool);
 
             RhinoDoc.DeselectAllObjects += (sender, e) => OnSelectionReset(sendBool);
 
@@ -163,6 +163,9 @@ namespace natalus
 
         public void OnIdle(bool sendBool)
         {
+            //echo.interop debug = new echo.interop();
+            //debug.locate(0, "Idle!");
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -175,7 +178,7 @@ namespace natalus
                 //If RhinoApp.Idle fires after no changes in selection, S00 state will be 0.
                 if (state > 0)
                 {
-                    outbound.push.selectionToIllustrator();
+                    outbound.push.selectionToIllustrator(state);
                 }
             }
         }

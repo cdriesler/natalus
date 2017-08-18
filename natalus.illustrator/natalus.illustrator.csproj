@@ -64,10 +64,9 @@
     <Content Include="jsutils\ai_test.js" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\echo\interop.vbproj">
+    <ProjectReference Include="..\interop\interop.vbproj">
       <Project>{b7409aa0-72f4-422d-9504-3ccdb044a168}</Project>
       <Name>interop</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
