@@ -56,9 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="push_geometry.cs" />
+    <Compile Include="translate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="push_selection.cs" />
+    <Compile Include="push.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\interop\interop.vbproj">

@@ -81,7 +81,7 @@ namespace natalus.outbound
             //int state = Convert.ToInt32(System.IO.File.ReadAllText(statePath));
 
             //Debug util: record state currently being passed as an argument.
-            string stateDebugPath = utils.file_structure.getPathFor("d00");
+            string stateDebugPath = utils.file_structure.getPathFor("x00");
             File.WriteAllText(stateDebugPath, "Current delta state: " + state.ToString());
 
             //Determine filepath for illustrator extendscript processes.
@@ -90,34 +90,15 @@ namespace natalus.outbound
             //Determine current document runtime to send to interop.
             string runtime = utils.file_structure.getDocRuntime();
 
-            //Create watchfile for Illustrator's confirmation state file.
-            //TODO: Removed because it's not working. Intent was to reset sNATA files only after Illustrator was done.
-            //string watchFilePath = utils.file_structure.getPathFor("S01");   //S01 - State file written by illustrator.
-            //System.IO.FileSystemWatcher fw = new System.IO.FileSystemWatcher(watchFilePath);
-            //fw.EnableRaisingEvents = true;
-            //fw.Created += (sender, e) => clearSelectionNata();
-
-            //Create file for illustrator to use to declare its state. 
-            //TODO: Obselete for now. Poor communication structure.
-            //string aiStatePath = utils.file_structure.getPathFor("S01");
-            //System.IO.File.Create(aiStatePath);
-
-            //Establish file system watcher to trigger clearSelectionNata();
-            //TODO: Second attempt removed. Maybe find a better way?
-            //System.IO.FileSystemWatcher fw = new System.IO.FileSystemWatcher();
-            //fw.Path = aiStatePath;
-            //fw.NotifyFilter = NotifyFilters.LastWrite;
-            //fw.Changed += (sender, ea) => clearSelectionNata();
-
             //Generate copies of current data that Illustrator will read.
             string S10_Path = utils.file_structure.getPathFor("S10");
             string S20_Path = utils.file_structure.getPathFor("S20");
 
-            if (File.Exists(S10_Path) == false)
+            if (File.Exists(S10_Path) == false | File.ReadAllText(S10_Path) == "")
             {
                 File.WriteAllText(S10_Path, "empty");
             }
-            if (File.Exists(S20_Path) == false)
+            if (File.Exists(S20_Path) == false | File.ReadAllText(S20_Path) == "")
             {
                 File.WriteAllText(S20_Path, "empty");
             }
@@ -139,15 +120,15 @@ namespace natalus.outbound
         //Clear selection .nata files on successful illustrator sync. Raise error if failure ocurred.
         private static void clearSelectionNata()
         {
-                //Determine paths for all selection .nata files.
-                string S10_Path = utils.file_structure.getPathFor("S10");
-                string S20_Path = utils.file_structure.getPathFor("S20");
-                string S01_Path = utils.file_structure.getPathFor("S01");
+            //Determine paths for all selection .nata files.
+            string S10_Path = utils.file_structure.getPathFor("S10");
+            string S20_Path = utils.file_structure.getPathFor("S20");
+            string S01_Path = utils.file_structure.getPathFor("S01");
 
-                //PURGE ALL TEXT
-                System.IO.File.WriteAllText(S10_Path, "");
-                System.IO.File.WriteAllText(S20_Path, "");
-                System.IO.File.WriteAllText(S01_Path, "false");
+            //PURGE ALL TEXT
+            System.IO.File.WriteAllText(S10_Path, "");
+            System.IO.File.WriteAllText(S20_Path, "");
+            System.IO.File.WriteAllText(S01_Path, "false");
         }
     }
 }

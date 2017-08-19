@@ -1,0 +1,49 @@
+﻿x series
+debug utilities, often parameters matched to some explanation
+
+x00:	selection change state (saved)
+		0: none
+		1: selection increasing
+		2: selection decreasing
+		3: selection reset
+
+x10:	current boolean state of "push" toggle
+		<bool> state
+
+s series
+information recorded to synchronize active selection between programs
+
+s00:	selection change state. should always bet set to 0, reset when changes are synchronized
+		<int> state
+
+s01:	obsolete | updates if illustrator is done parsing incoming selection data
+
+s10:	list of recently selected objects' guids. should always be empty, reset when changes are synchronized
+		<string> guid
+
+s11:	safe copy of s10 for illustrator to read from as rhino cleans up
+
+s20:	list of recently deselected objects' guids. should always be empty, reset when changes are synchronized
+		<string> guid
+
+s21:	safe copy for s20 for illustrator to read from as rhino cleans up
+
+
+d series
+document attributes like layer names, units, and placement - generally more important to illustrator
+
+d00:	illustrator units x rhino units
+		<string> illustrator units | <string> rhino units
+
+d10:	guid of rectangle that represents docbounds in rhino
+		<string> guid
+
+d20:	rhino coordinate of top left corner of docbox in model space (coordinate modifier for all geometry translations)
+		<float> x | <float> y
+
+d01:	illustrator document bounds
+		<float> width | <float> height
+
+
+g series - "the hard part"
+information recorded about geometry used to translate between programs

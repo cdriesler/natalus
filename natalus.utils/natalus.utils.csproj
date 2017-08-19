@@ -56,8 +56,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="file_structure.cs" />
+    <Compile Include="utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\natalus.inbound\natalus.inbound.csproj">
+      <Project>{c28e4c9a-70cb-4d2d-badc-9619bbc86a6c}</Project>
+      <Name>natalus.inbound</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

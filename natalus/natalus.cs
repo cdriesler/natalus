@@ -48,8 +48,8 @@ namespace natalus
             //--natalus.inbound.dll
             //--NATA/
             //--JSX/
-            //---AI_S10.jsx
-            //---AI_S20.jsx
+            //---S10.jsx
+            //---S20.jsx
             //---etc.
             
             ////OUTBOUND
@@ -57,15 +57,33 @@ namespace natalus
             bool sendBool = false;
             DA.GetData(0, ref sendBool);
 
-            //Event handlers constellation.
-            RhinoDoc.SelectObjects += (sender, e1) => OnSelectionIncrease(sender, e1, sendBool);
-            RhinoDoc.UndeleteRhinoObject += (sender, e2) => ImplicitSelectionIncrease(sender, e2, sendBool);
+            if (sendBool == true)
+            {
+                utils.properties.setPushState(sendBool);
 
+                //Initialize docbox!
+                string docBoxID = utils.properties.getDocBoxID();
+            }
+            else if (sendBool == false)
+            {
+                utils.properties.setPushState(sendBool);
+
+                //Hide docbox.
+            }
+
+            //Event handlers constellation.
+            RhinoDoc.DeselectObjects -= (sender, e1) => OnSelectionDecrease(sender, e1, sendBool);
             RhinoDoc.DeselectObjects += (sender, e1) => OnSelectionDecrease(sender, e1, sendBool);
             //RhinoDoc.DeleteRhinoObject += (sender, e2) => ImplicitSelectionDecrease(sender, e2, sendBool);
 
+            RhinoDoc.SelectObjects -= (sender, e1) => OnSelectionIncrease(sender, e1, sendBool);
+            RhinoDoc.SelectObjects += (sender, e1) => OnSelectionIncrease(sender, e1, sendBool);
+            //RhinoDoc.UndeleteRhinoObject += (sender, e2) => ImplicitSelectionIncrease(sender, e2, sendBool);
+
+            RhinoDoc.DeselectAllObjects -= (sender, e) => OnSelectionReset(sendBool);
             RhinoDoc.DeselectAllObjects += (sender, e) => OnSelectionReset(sendBool);
 
+            RhinoApp.Idle -= (sender, e) => OnIdle(sendBool);
             RhinoApp.Idle += (sender, e) => OnIdle(sendBool);
 
             ////INBOUND
@@ -78,14 +96,14 @@ namespace natalus
             {
                 //Pause all outbound data if receiving to prevent endless loop.
                 //Really, really, really hope it works this way.
-                sendBool = false;
+                utils.properties.setPushState(false);
 
                 //Pull data from illustrator.
             }
             else if (receiveBool == false)
             {
                 //If not receiving data, let sending boolean be what's set by the user.
-                DA.GetData(0, ref sendBool);
+                utils.properties.setPushState(sendBool);
             }
         }
 
@@ -97,6 +115,8 @@ namespace natalus
         ////Selection event functions.
         public void OnSelectionIncrease(object sender, RhinoObjectSelectionEventArgs ea, bool sendBool)
         {
+            sendBool = utils.properties.getPushState();
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -109,6 +129,8 @@ namespace natalus
 
         public void ImplicitSelectionIncrease(object sender, RhinoObjectEventArgs ea, bool sendBool)
         {
+            sendBool = utils.properties.getPushState();
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -124,6 +146,8 @@ namespace natalus
 
         public void OnSelectionDecrease(object sender, RhinoObjectSelectionEventArgs ea, bool sendBool)
         {
+            sendBool = utils.properties.getPushState();
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -136,6 +160,8 @@ namespace natalus
 
         public void ImplicitSelectionDecrease(object sender, RhinoObjectEventArgs ea, bool sendBool)
         {
+            sendBool = utils.properties.getPushState();
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -151,6 +177,8 @@ namespace natalus
 
         public void OnSelectionReset(bool sendBool)
         {
+            sendBool = utils.properties.getPushState();
+
             if (sendBool == false)
             {
                 //Do nothing.
@@ -163,8 +191,7 @@ namespace natalus
 
         public void OnIdle(bool sendBool)
         {
-            //echo.interop debug = new echo.interop();
-            //debug.locate(0, "Idle!");
+            sendBool = utils.properties.getPushState();
 
             if (sendBool == false)
             {

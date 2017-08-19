@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace natalus.outbound
 {
-    public class push_geometry
+    public class translate
     {
     }
 }

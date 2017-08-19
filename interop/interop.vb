@@ -13,8 +13,19 @@
 
     End Function
 
-    Public Function init()
-        'Initialize handshake between rhino and illustrator.
+    Public Function init(state, path, runtime)
+        'Initialize parts of handshake between rhino and illustrator.
+
+        'states:
+        '0: create docbox
+
+        Dim illustratorRef
+        illustratorRef = CreateObject("Illustrator.Application")
+
+        If state = 0 Then
+            Dim scriptPath = path + "D01.jsx"
+            illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+        End If
 
     End Function
 
