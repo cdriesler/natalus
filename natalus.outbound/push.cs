@@ -68,6 +68,12 @@ namespace natalus.outbound
             string statePath = utils.file_structure.getPathFor("S00");
             System.IO.File.WriteAllText(statePath, "3");
 
+            string jsxPath = utils.file_structure.getJavascriptPath();
+            string runtime = utils.file_structure.getDocRuntime();
+
+            echo.interop echo = new echo.interop();
+            echo.selection(3, jsxPath, runtime);
+
             return 2;
         }
 
