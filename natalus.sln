@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus", "natalus\natalus.csproj", "{5BB49E6F-EC50-4FE0-A7DA-2DBBAE3129AD}"
 EndProject
@@ -15,6 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus.utils", "natalus.ut
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interop.javascript", "interop.javascript", "{3337D3AE-6A1B-4F0C-923A-B814F2780007}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\D10.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\D10.jsx
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S10.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S10.jsx
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S20.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S20.jsx
 	EndProjectSection
@@ -54,5 +55,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DF80C4E-F830-4801-BCE9-63305A852EF0}
 	EndGlobalSection
 EndGlobal

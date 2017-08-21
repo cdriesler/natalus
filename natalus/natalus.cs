@@ -86,6 +86,9 @@ namespace natalus
             RhinoApp.Idle -= (sender, e) => OnIdle(sendBool);
             RhinoApp.Idle += (sender, e) => OnIdle(sendBool);
 
+            RhinoDoc.BeforeTransformObjects -= (sender, ea) => OnBeforeTransform(ea);
+            RhinoDoc.BeforeTransformObjects += (sender, ea) => OnBeforeTransform(ea);
+
             ////INBOUND
             //Begin inbound data process if requested.
             bool receiveBool = false;
@@ -206,6 +209,35 @@ namespace natalus
                 if (state > 0)
                 {
                     outbound.push.selectionToIllustrator(state);
+                }
+            }
+        }
+
+        public void OnBeforeTransform(RhinoTransformObjectsEventArgs ea)
+        {
+            bool sendBool = utils.properties.getPushState();
+
+            //string debugMessage = ea.Transform.
+            //debug.ping(0, debugMessage);
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            else if (sendBool == true)
+            {
+                //If only one objects changes, and it's the docbox, update illustrator bounds.
+                if (ea.ObjectCount == 1)
+                {
+                    string docBoxID = utils.properties.getDocBoxID();
+                    if (ea.Objects[0].Id.ToString() == docBoxID)
+                    {
+                        outbound.push.docBoxChanges(ea.Objects[0], ea);
+                    }
+                }
+                else
+                {
+                    //Transform items normally.
                 }
             }
         }

@@ -100,11 +100,19 @@ namespace natalus.outbound
             string S10_Path = utils.file_structure.getPathFor("S10");
             string S20_Path = utils.file_structure.getPathFor("S20");
 
-            if (File.Exists(S10_Path) == false | File.ReadAllText(S10_Path) == "")
+            if (File.Exists(S10_Path) == false)
             {
                 File.WriteAllText(S10_Path, "empty");
             }
-            if (File.Exists(S20_Path) == false | File.ReadAllText(S20_Path) == "")
+            else if (File.Exists(S10_Path) == true && File.ReadAllText(S10_Path) == "")
+            {
+                File.WriteAllText(S10_Path, "empty");
+            }
+            if (File.Exists(S20_Path) == false)
+            {
+                File.WriteAllText(S20_Path, "empty");
+            }
+            else if (File.Exists(S20_Path) == true && File.ReadAllText(S20_Path) == "")
             {
                 File.WriteAllText(S20_Path, "empty");
             }
@@ -135,6 +143,61 @@ namespace natalus.outbound
             System.IO.File.WriteAllText(S10_Path, "");
             System.IO.File.WriteAllText(S20_Path, "");
             System.IO.File.WriteAllText(S01_Path, "false");
+        }
+
+        //Update illustrator doc bound if doxbox changes in rhino.
+        public static void docBoxChanges(Rhino.DocObjects.RhinoObject docBox, Rhino.DocObjects.RhinoTransformObjectsEventArgs xea)
+        {
+            //Compare old geometric bounds to new to generate new data for illustrator.
+            Rhino.Geometry.BoundingBox oldDimsBox = docBox.Geometry.GetBoundingBox(false);
+
+            Rhino.Geometry.BoundingBox newDimsBox = xea.Transform.TransformBoundingBox(oldDimsBox);
+
+            Rhino.Geometry.Point3d newMinPoint = newDimsBox.Min;
+            Rhino.Geometry.Point3d newMaxPoint = newDimsBox.Max;
+
+            double newWidth = newMaxPoint.X - newMinPoint.X;
+            double newHeight = newMaxPoint.Y - newMinPoint.Y;
+
+            int conversion = utils.units.conversion();
+
+            //Compare previous size, or record if first run.
+            string D01_Path = utils.file_structure.getPathFor("D01");
+            string jsxPath = utils.file_structure.getJavascriptPath();
+
+            if (System.IO.File.Exists(D01_Path) == false)
+            {
+                string newData = newWidth.ToString() + "|" + newHeight.ToString();
+                System.IO.File.WriteAllText(D01_Path, newData);
+            }
+            else if (System.IO.File.Exists(D01_Path) == true)
+            {
+                //If file exists, verify bounds changed. (Otherwise, box moved.)
+                string[] oldData = System.IO.File.ReadAllText(D01_Path).Split('|');
+                double oldWidth = Convert.ToDouble(oldData[0]);
+                double oldHeight = Convert.ToDouble(oldData[1]);
+
+                //utils.debug.ping(0, "Width change: " + newWidth.ToString() + " - " + oldWidth.ToString());
+
+                if (oldWidth == newWidth && oldHeight == newHeight)
+                {
+                    //Recalculate curve geometry.
+                }
+                else
+                {
+                    string newData = newWidth.ToString() + "|" + newHeight.ToString();
+                    System.IO.File.WriteAllText(D01_Path, newData);
+
+                    echo.interop echo = new echo.interop();
+                    echo.docBounds(newWidth, newHeight, conversion, jsxPath);
+                    //AND recalculate curve geometry.
+                }
+                
+            }
+
+            //string debugMessage = "New dims are " + newWidth.ToString() + " by " + newHeight.ToString();
+
+
         }
     }
 }

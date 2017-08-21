@@ -72,4 +72,15 @@
 
     End Function
 
+    Public Function docBounds(x, y, conv, path)
+        'Set document bounds in illustrator.
+
+        Dim illustratorRef
+        illustratorRef = CreateObject("Illustrator.Application")
+
+        Dim scriptPath = path + "D10.jsx"
+        illustratorRef.DoJavaScriptFile(scriptPath, {x, y, conv})
+
+    End Function
+
 End Class

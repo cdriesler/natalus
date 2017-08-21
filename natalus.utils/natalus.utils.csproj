@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,6 +61,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\interop\interop.vbproj">
+      <Project>{b7409aa0-72f4-422d-9504-3ccdb044a168}</Project>
+      <Name>interop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\natalus.inbound\natalus.inbound.csproj">
       <Project>{c28e4c9a-70cb-4d2d-badc-9619bbc86a6c}</Project>
       <Name>natalus.inbound</Name>
