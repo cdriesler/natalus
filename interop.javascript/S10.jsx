@@ -8,6 +8,8 @@ var docItems = app.activeDocument.pageItems;
 selectionChangeData.open("r");
 var data = selectionChangeData.read().split("\n");
 
+//TODO: Cull duplicates.
+
 //$.writeln(data.0);
 
 var newSelectedItems = app.selection;

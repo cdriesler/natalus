@@ -14,6 +14,7 @@ var currentSelection = app.selection;
 var newSelection = [];
 
 //Iterate through current illustrator selection and test if listed in latest deselections from rhino.
+//TODO: Feeling like this will be way too slow in larger drawings.
 for (i=0, len=currentSelection.length; i < len; i++) {
 
     check = 0;
