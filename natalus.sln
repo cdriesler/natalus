@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus", "natalus\natalus.csproj", "{5BB49E6F-EC50-4FE0-A7DA-2DBBAE3129AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus.illustrator", "natalus.illustrator\natalus.illustrator.csproj", "{2DD9162D-A6AE-4DF4-AF3F-9DD16E046376}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus.outbound", "natalus.outbound\natalus.outbound.csproj", "{7471AD6C-BD98-46B8-A412-6B1F35873617}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "natalus.inbound", "natalus.inbound\natalus.inbound.csproj", "{C28E4C9A-70CB-4D2D-BADC-9619BBC86A6C}"
@@ -32,10 +30,6 @@ Global
 		{5BB49E6F-EC50-4FE0-A7DA-2DBBAE3129AD}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{5BB49E6F-EC50-4FE0-A7DA-2DBBAE3129AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BB49E6F-EC50-4FE0-A7DA-2DBBAE3129AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2DD9162D-A6AE-4DF4-AF3F-9DD16E046376}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{2DD9162D-A6AE-4DF4-AF3F-9DD16E046376}.Debug|Any CPU.Build.0 = Release|Any CPU
-		{2DD9162D-A6AE-4DF4-AF3F-9DD16E046376}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2DD9162D-A6AE-4DF4-AF3F-9DD16E046376}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7471AD6C-BD98-46B8-A412-6B1F35873617}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7471AD6C-BD98-46B8-A412-6B1F35873617}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7471AD6C-BD98-46B8-A412-6B1F35873617}.Release|Any CPU.ActiveCfg = Release|Any CPU

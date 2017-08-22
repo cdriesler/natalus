@@ -106,6 +106,10 @@ namespace natalus
             RhinoDoc.BeforeTransformObjects -= (sender, ea) => TransformUpdateState();
             RhinoDoc.BeforeTransformObjects += (sender, ea) => TransformUpdateState();
 
+            //When doc saved, copy critical existing data if file name changed. (x10, D01, D10)
+            //RhinoDoc.BeginSaveDocument
+            //ea.FileName is new save name, can be used for new path to copy to.
+
             ////INBOUND
             //Begin inbound data process if requested.
             bool receiveBool = false;

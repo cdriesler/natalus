@@ -17,7 +17,15 @@ namespace natalus.utils
         public static string getPathFor(string process)
         {
             string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
-            string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\" + rhinoDocRuntime + "\\");
+            string docName = "UNSAVED";
+            if (Rhino.RhinoDoc.ActiveDoc.Name != null)
+            {
+                docName = Rhino.RhinoDoc.ActiveDoc.Name.ToUpper().Replace(".3DM", "");
+            }
+
+            string docFolder = docName + "." + rhinoDocRuntime;
+
+            string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\" + docFolder + "\\");
 
             System.IO.Directory.CreateDirectory(nataPath);
 

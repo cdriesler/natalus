@@ -58,7 +58,6 @@
   <ItemGroup>
     <Compile Include="natalus.cs" />
     <Compile Include="natalus_file_structure.cs" />
-    <Compile Include="natalus_input.cs" />
     <Compile Include="nata_state_machine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,11 +65,6 @@
     <ProjectReference Include="..\interop\interop.vbproj">
       <Project>{b7409aa0-72f4-422d-9504-3ccdb044a168}</Project>
       <Name>interop</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\natalus.illustrator\natalus.illustrator.csproj">
-      <Project>{2dd9162d-a6ae-4df4-af3f-9dd16e046376}</Project>
-      <Name>natalus.illustrator</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\natalus.inbound\natalus.inbound.csproj">
       <Project>{c28e4c9a-70cb-4d2d-badc-9619bbc86a6c}</Project>
