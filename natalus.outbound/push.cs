@@ -70,9 +70,11 @@ namespace natalus.outbound
 
             string jsxPath = utils.file_structure.getJavascriptPath();
             string runtime = utils.file_structure.getDocRuntime();
+            string nataPath = utils.file_structure.getNataPath();
+            int conversion = utils.units.conversion();
 
             echo.interop echo = new echo.interop();
-            echo.selection(3, jsxPath, runtime);
+            echo.selection(3, jsxPath, runtime, nataPath, conversion);
 
             return 2;
         }
@@ -123,9 +125,12 @@ namespace natalus.outbound
             File.WriteAllText(S11_Path, File.ReadAllText(S10_Path));
             File.WriteAllText(S21_Path, File.ReadAllText(S20_Path));
 
+            string nataPath = utils.file_structure.getNataPath();
+            int conversion = utils.units.conversion();
+
             //Tell illustrator to run selection update script, based on state.
             echo.interop echo = new echo.interop();
-            echo.selection(state, jsxPath, runtime);
+            echo.selection(state, jsxPath, runtime, nataPath, conversion);
 
             //Clear original .nata file data.
             clearSelectionNata();
@@ -221,6 +226,7 @@ namespace natalus.outbound
 
             //Determine filepath for illustrator extendscript processes.
             string jsxPath = utils.file_structure.getJavascriptPath();
+            string nataPath = utils.file_structure.getNataPath();
 
             //Determine current document runtime to send to interop.
             string runtime = utils.file_structure.getDocRuntime();
@@ -252,9 +258,11 @@ namespace natalus.outbound
             File.WriteAllText(G11_Path, File.ReadAllText(G10_Path));
             File.WriteAllText(G21_Path, File.ReadAllText(G20_Path));
 
-            //Tell illustrator to run selection update script, based on state.
+            int conversion = utils.units.conversion();
+
+            //Tell illustrator to run geometry update script, based on state.
             echo.interop echo = new echo.interop();
-            echo.geometry(state, jsxPath, runtime);
+            echo.geometry(state, jsxPath, runtime, nataPath, conversion);
 
             //Clear original .nata file data.
             clearGeometryNata();

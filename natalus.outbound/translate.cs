@@ -23,6 +23,11 @@ namespace natalus.outbound
                 System.IO.File.WriteAllText(G00_Path, state.ToString());
             }
 
+            //Grab reference point from docBox.
+            Rhino.Geometry.Point3d refPoint = utils.properties.getRefPoint();
+            double refPointX = refPoint.X;
+            double refPointY = refPoint.Y;
+
             //Determine and sanitize cache file for new geometry.
             string G10_Path = utils.file_structure.getPathFor("G10");
 
@@ -68,14 +73,39 @@ namespace natalus.outbound
                     //Treat as linear curve.
                     //utils.debug.ping(0, "Linear curve added!");
 
-                    System.IO.File.AppendAllText(G10_Path, "0|" + incomingGuid + "|" + incomingLayer + "|" + Environment.NewLine);
+                    Rhino.Geometry.Point3d startPoint = newCurve.PointAtStart;
+                    Rhino.Geometry.Point3d endPoint = newCurve.PointAtEnd;
+
+                    string x1 = (startPoint.X - refPointX).ToString();
+                    string y1 = (startPoint.Y - refPointY).ToString();
+                    string x2 = (endPoint.X - refPointX).ToString();
+                    string y2 = (endPoint.Y - refPointY).ToString();
+
+                    System.IO.File.AppendAllText(G10_Path, "0|" + incomingGuid + "|" + incomingLayer + "|" + newCurve.SpanCount.ToString() + "|" + x1 + "," + y1 + "," + x2 + "," + y2 + Environment.NewLine);
                 }
                 else if (newCurve.SpanCount > 1)
                 {
                     //Treat as linear polyline.
                     //utils.debug.ping(0, "Linear polyline added!");
 
-                    System.IO.File.AppendAllText(G10_Path, "1|" + incomingGuid + "|" + incomingLayer + "|" + Environment.NewLine);
+                    List<string> coords = new List<string>();
+
+                    int spanCount = newCurve.SpanCount;
+                    for (int i = 0; i < spanCount; i++)
+                    {
+                        double activeParameter = newCurve.SpanDomain(i).Min;
+                        Rhino.Geometry.Point3d activePoint = newCurve.PointAt(activeParameter);
+
+                        double activeX = activePoint.X;
+                        coords.Add(activeX.ToString());
+
+                        double activeY = activePoint.Y;
+                        coords.Add(activeY.ToString());
+                    }
+
+                    string coordInfo = string.Join(",", coords);
+
+                    System.IO.File.AppendAllText(G10_Path, "1|" + incomingGuid + "|" + incomingLayer + "|" + newCurve.SpanCount.ToString() + "|" + coordInfo + Environment.NewLine);
                 }
             }
             else if (newCurve.Degree > 1)

@@ -29,7 +29,7 @@
 
     End Function
 
-    Public Function geometry(state, path, runtime)
+    Public Function geometry(state, jsx_path, runtime, nata_path, conversion)
         'Primary illustrator handshake util. Passes state of rhino changes and reads from staging file.
 
         'states:
@@ -41,19 +41,19 @@
         illustratorRef = CreateObject("Illustrator.Application")
 
         If state = 1 Then
-            Dim scriptPath = path + "G10.jsx"
-            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+            Dim scriptPath = jsx_path + "G10.jsx"
+            illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         ElseIf state = 2 Then
-            Dim scriptPath = path + "G20.jsx"
+            Dim scriptPath = jsx_path + "G20.jsx"
             'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
         ElseIf state = 3 Then
-            Dim scriptPath = path + "G30.jsx"
+            Dim scriptPath = jsx_path + "G30.jsx"
             'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
         End If
 
     End Function
 
-    Public Function selection(state, path, runtime)
+    Public Function selection(state, jsx_path, runtime, nata_path, conversion)
         'General selection sync util. Updates selection across all synchronized programs.
         'path arg is string of path up to ..\\JSX\\
 
@@ -68,11 +68,11 @@
         'illustratorRef.DoJavaScript("alert ('Idle!')")
 
         If state = 1 Then
-            Dim scriptPath = path + "S10.jsx"
-            illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+            Dim scriptPath = jsx_path + "S10.jsx"
+            illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         ElseIf state = 2 Then
-            Dim scriptPath = path + "S20.jsx"
-            illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+            Dim scriptPath = jsx_path + "S20.jsx"
+            illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         ElseIf state = 3 Then
             illustratorRef.DoJavaScript("app.selection = ''")
         End If
