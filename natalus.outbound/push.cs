@@ -88,7 +88,7 @@ namespace natalus.outbound
 
             //Debug util: record state currently being passed as an argument.
             string stateDebugPath = utils.file_structure.getPathFor("x00");
-            File.WriteAllText(stateDebugPath, "Current delta state: " + state.ToString());
+            File.WriteAllText(stateDebugPath, "Current selection delta state: " + state.ToString());
 
             //Determine filepath for illustrator extendscript processes.
             string jsxPath = utils.file_structure.getJavascriptPath();
@@ -145,13 +145,18 @@ namespace natalus.outbound
             System.IO.File.WriteAllText(S01_Path, "false");
         }
 
-        //Update illustrator doc bound if doxbox changes in rhino.
-        public static void docBoxChanges(Rhino.DocObjects.RhinoObject docBox, Rhino.DocObjects.RhinoTransformObjectsEventArgs xea)
+        //Update illustrator doc bound if docbox changes in rhino.
+        public static void docBoxChanges(Rhino.DocObjects.RhinoObject docBox)
         {
-            //Compare old geometric bounds to new to generate new data for illustrator.
-            Rhino.Geometry.BoundingBox oldDimsBox = docBox.Geometry.GetBoundingBox(false);
+            //Parse rectangle from incoming RhinoObject.
+            Guid incomingGuid = docBox.Id;
+            Rhino.Geometry.Curve newCurve = null;
 
-            Rhino.Geometry.BoundingBox newDimsBox = xea.Transform.TransformBoundingBox(oldDimsBox);
+            Rhino.DocObjects.ObjRef oRef = new Rhino.DocObjects.ObjRef(incomingGuid);
+
+            newCurve = oRef.Curve();
+
+            Rhino.Geometry.BoundingBox newDimsBox = newCurve.GetBoundingBox(false);
 
             Rhino.Geometry.Point3d newMinPoint = newDimsBox.Min;
             Rhino.Geometry.Point3d newMaxPoint = newDimsBox.Max;
@@ -181,7 +186,7 @@ namespace natalus.outbound
 
                 if (oldWidth == newWidth && oldHeight == newHeight)
                 {
-                    //Recalculate curve geometry.
+                    //outbound.push.fullReset();
                 }
                 else
                 {
@@ -190,14 +195,80 @@ namespace natalus.outbound
 
                     echo.interop echo = new echo.interop();
                     echo.docBounds(newWidth, newHeight, conversion, jsxPath);
-                    //AND recalculate curve geometry.
+
+                    //outbound.push.fullReset();
                 }
                 
             }
+        }
 
-            //string debugMessage = "New dims are " + newWidth.ToString() + " by " + newHeight.ToString();
+        //Reset all synced illustrator lines if docbounds change.
+        private static void fullReset()
+        {
+            //Is there any chance this could be fast?
+        }
 
+        //Update geometry in illustrator.
+        public static void geometryToIllustrator(int state)
+        {
+            //Reset G00 so that RhinoApp.Idle doesn't repeat this process.
+            string statePath = utils.file_structure.getPathFor("G00");
+            System.IO.File.WriteAllText(statePath, "0");
 
+            //Debug util: record previous state.
+            string debugPath = utils.file_structure.getPathFor("x20");
+            System.IO.File.WriteAllText(debugPath, "Previous delta state: " + state.ToString());
+
+            //Determine filepath for illustrator extendscript processes.
+            string jsxPath = utils.file_structure.getJavascriptPath();
+
+            //Determine current document runtime to send to interop.
+            string runtime = utils.file_structure.getDocRuntime();
+
+            //Generate copies of current data that Illustrator will read.
+            string G10_Path = utils.file_structure.getPathFor("G10");
+            string G20_Path = utils.file_structure.getPathFor("G20");
+
+            if (File.Exists(G10_Path) == false)
+            {
+                File.WriteAllText(G10_Path, "empty");
+            }
+            else if (File.Exists(G10_Path) == true && File.ReadAllText(G10_Path) == "")
+            {
+                File.WriteAllText(G10_Path, "empty");
+            }
+            if (File.Exists(G20_Path) == false)
+            {
+                File.WriteAllText(G20_Path, "empty");
+            }
+            else if (File.Exists(G20_Path) == true && File.ReadAllText(G20_Path) == "")
+            {
+                File.WriteAllText(G20_Path, "empty");
+            }
+
+            string G11_Path = utils.file_structure.getPathFor("G11");
+            string G21_Path = utils.file_structure.getPathFor("G21");
+
+            File.WriteAllText(G11_Path, File.ReadAllText(G10_Path));
+            File.WriteAllText(G21_Path, File.ReadAllText(G20_Path));
+
+            //Tell illustrator to run selection update script, based on state.
+            echo.interop echo = new echo.interop();
+            echo.geometry(state, jsxPath, runtime);
+
+            //Clear original .nata file data.
+            clearGeometryNata();
+        }
+
+        private static void clearGeometryNata()
+        {
+            //Determine paths for all selection .nata files.
+            string G10_Path = utils.file_structure.getPathFor("G10");
+            string G20_Path = utils.file_structure.getPathFor("G20");
+
+            //PURGE ALL TEXT
+            System.IO.File.WriteAllText(G10_Path, "");
+            System.IO.File.WriteAllText(G20_Path, "");
         }
     }
 }

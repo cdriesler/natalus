@@ -29,17 +29,27 @@
 
     End Function
 
-    Public Function illustrator(state, stagingFile)
+    Public Function geometry(state, path, runtime)
         'Primary illustrator handshake util. Passes state of rhino changes and reads from staging file.
 
         'states:
-        '0: create new path
-        '1: delete path
+        '1: create new path
+        '2: delete path
+        '3: transform existing
 
         Dim illustratorRef
         illustratorRef = CreateObject("Illustrator.Application")
 
-        'illustratorRef.DoJavaScriptFile("TRANSFORMATION FILEPATH", {state, stagingFile})
+        If state = 1 Then
+            Dim scriptPath = path + "G10.jsx"
+            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+        ElseIf state = 2 Then
+            Dim scriptPath = path + "G20.jsx"
+            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+        ElseIf state = 3 Then
+            Dim scriptPath = path + "G30.jsx"
+            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+        End If
 
     End Function
 
@@ -57,7 +67,6 @@
 
         'illustratorRef.DoJavaScript("alert ('Idle!')")
 
-        'TODO: Both Illustrator selection extendscript files MUST write "true" to S01 on completion.
         If state = 1 Then
             Dim scriptPath = path + "S10.jsx"
             illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
@@ -81,6 +90,15 @@
         Dim scriptPath = path + "D10.jsx"
         illustratorRef.DoJavaScriptFile(scriptPath, {x, y, conv})
 
+    End Function
+
+    Public Function alert(message)
+        'Throw up an alert window.
+
+        Dim illustratorRef
+        illustratorRef = CreateObject("Illustrator.Application")
+
+        illustratorRef.DoJavaScript("alert(arguments[0])", {message})
     End Function
 
 End Class

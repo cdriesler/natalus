@@ -10,6 +10,12 @@ x00:	selection change state (saved)
 x10:	current boolean state of "push" toggle
 		<bool> state
 
+x20:	geometry change state (saved)
+		0: none
+		1: geometry added
+		2: geometry removed
+		3: geometry transformation
+
 s series
 information recorded to synchronize active selection between programs
 
@@ -47,3 +53,8 @@ d01:	illustrator document bounds
 
 g series - "the hard part"
 information recorded about geometry used to translate between programs
+
+g00:	geometry change state
+
+g10:	guids and properties of geometry being added
+		<int> geo type | <string> GUID | <string> layer | <int> spans | [double] coordinates

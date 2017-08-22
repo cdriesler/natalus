@@ -72,6 +72,8 @@ namespace natalus
             }
 
             //Event handlers constellation.
+
+            //SELECTION
             RhinoDoc.DeselectObjects -= (sender, e1) => OnSelectionDecrease(sender, e1, sendBool);
             RhinoDoc.DeselectObjects += (sender, e1) => OnSelectionDecrease(sender, e1, sendBool);
             //RhinoDoc.DeleteRhinoObject += (sender, e2) => ImplicitSelectionDecrease(sender, e2, sendBool);
@@ -86,8 +88,23 @@ namespace natalus
             RhinoApp.Idle -= (sender, e) => OnIdle(sendBool);
             RhinoApp.Idle += (sender, e) => OnIdle(sendBool);
 
+            //GEOMETRY
+            RhinoDoc.AddRhinoObject -= (sender, e) => OnObjectAdded(e);
+            RhinoDoc.AddRhinoObject += (sender, e) => OnObjectAdded(e);
+
+            RhinoDoc.DeleteRhinoObject -= (sender, e) => OnObjectRemoved(e);
+            RhinoDoc.DeleteRhinoObject += (sender, e) => OnObjectRemoved(e);
+
+            RhinoDoc.UndeleteRhinoObject -= (sender, e) => OnObjectUndelete(e);
+            RhinoDoc.UndeleteRhinoObject += (sender, e) => OnObjectUndelete(e);
+
+            /* TRANSFORMATION
             RhinoDoc.BeforeTransformObjects -= (sender, ea) => OnBeforeTransform(ea);
             RhinoDoc.BeforeTransformObjects += (sender, ea) => OnBeforeTransform(ea);
+            */
+
+            RhinoDoc.BeforeTransformObjects -= (sender, ea) => TransformUpdateState();
+            RhinoDoc.BeforeTransformObjects += (sender, ea) => TransformUpdateState();
 
             ////INBOUND
             //Begin inbound data process if requested.
@@ -203,16 +220,42 @@ namespace natalus
             else if (sendBool == true)
             {
                 string selectionState = utils.file_structure.getPathFor("S00");
-                int state = Convert.ToInt32(System.IO.File.ReadAllText(selectionState));
+                int selState = 0;
+                if (System.IO.File.Exists(selectionState) == false)
+                {
+                    selState = 0;
+                }
+                else if (System.IO.File.Exists(selectionState) == true)
+                {
+                    selState = Convert.ToInt32(System.IO.File.ReadAllText(selectionState));
+                }
 
                 //If RhinoApp.Idle fires after no changes in selection, S00 state will be 0.
-                if (state > 0)
+                if (selState > 0)
                 {
-                    outbound.push.selectionToIllustrator(state);
+                    outbound.push.selectionToIllustrator(selState);
+                }
+
+                string geoDeltaState = utils.file_structure.getPathFor("G00");
+                int geoState = 0;
+                if (System.IO.File.Exists(geoDeltaState) == false)
+                {
+                    geoState = 0;
+                }
+                else if (System.IO.File.Exists(geoDeltaState) == true)
+                {
+                    geoState = Convert.ToInt32(System.IO.File.ReadAllText(geoDeltaState));
+                }
+
+                //If RhinoApp.Idle fires after no changes in geometry, G00 state will be 0.
+                if (geoState > 0)
+                {
+                    outbound.push.geometryToIllustrator(geoState);
                 }
             }
         }
 
+        /* TODO: Redundant. Can streamline process by only checking for docbox id when it fires AddRhinoObject.
         public void OnBeforeTransform(RhinoTransformObjectsEventArgs ea)
         {
             bool sendBool = utils.properties.getPushState();
@@ -238,6 +281,107 @@ namespace natalus
                 else
                 {
                     //Transform items normally.
+                }
+            }
+        } */
+
+        public void TransformUpdateState()
+        {
+            bool sendBool = utils.properties.getPushState();
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            else if (sendBool == true)
+            {
+                string G00_Path = utils.file_structure.getPathFor("G00");
+                System.IO.File.WriteAllText(G00_Path, "3");
+            }
+        }
+
+        public void OnObjectAdded(RhinoObjectEventArgs ea)
+        {
+            bool sendBool = utils.properties.getPushState();
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            else if (sendBool == true)
+            {
+                //Check if change being processed is the docbox.
+                string docBoxID = utils.properties.getDocBoxID();
+                if (ea.ObjectId.ToString() == docBoxID)
+                {
+                    outbound.push.docBoxChanges(ea.TheObject);
+                }
+                else
+                {
+                    string G00_Path = utils.file_structure.getPathFor("G00");
+                    if (System.IO.File.Exists(G00_Path) == false)
+                    {
+                        System.IO.File.WriteAllText(G00_Path, "1");
+                    }
+
+                    outbound.translate.curves(1, ea.TheObject);
+                }
+            }
+        }
+
+        public void OnObjectUndelete(RhinoObjectEventArgs ea)
+        {
+            //Treat like object added, without the docbox.
+            bool sendBool = utils.properties.getPushState();
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            if (sendBool == true)
+            {
+                string G00_Path = utils.file_structure.getPathFor("G00");
+                if (System.IO.File.Exists(G00_Path) == false)
+                {
+                    System.IO.File.WriteAllText(G00_Path, "1");
+                }
+
+                outbound.translate.curves(1, ea.TheObject);
+            }
+        }
+
+        public void OnObjectRemoved(RhinoObjectEventArgs ea)
+        {
+            bool sendBool = utils.properties.getPushState();
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            if (sendBool == true)
+            {
+                //Check that docbox was not deleted.
+                string docBoxID = utils.properties.getDocBoxID();
+                if (ea.ObjectId.ToString() == docBoxID)
+                {
+                    string geoStatePath = utils.file_structure.getPathFor("G00");
+                    int geoDeltaState = Convert.ToInt32(System.IO.File.ReadAllText(geoStatePath));
+
+                    //Transforming doxBox is okay and expected!
+                    if (geoDeltaState != 3)
+                    {
+                        utils.debug.alert("The Illustrator artboard reference in Rhino has been deleted. Please undo and put it back.");
+                    }
+                }
+                else
+                {
+                    string G00_Path = utils.file_structure.getPathFor("G00");
+                    if (System.IO.File.Exists(G00_Path) == false)
+                    {
+                        System.IO.File.WriteAllText(G00_Path, "2");
+                    }
+
+                    outbound.translate.removals(2, ea.TheObject);
                 }
             }
         }

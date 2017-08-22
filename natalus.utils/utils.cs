@@ -17,7 +17,7 @@ namespace natalus.utils
         public static string getPathFor(string process)
         {
             string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
-            string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\");
+            string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\" + rhinoDocRuntime + "\\");
 
             System.IO.Directory.CreateDirectory(nataPath);
 
@@ -63,15 +63,23 @@ namespace natalus.utils
             {
                 string docBoxGUID = makeDocBox();
 
-                //Record GUID of docBox.
-                System.IO.File.WriteAllText(D10_Path, docBoxGUID);
-
                 return docBoxGUID;
             }
             else if (System.IO.File.Exists(D10_Path) == true)
             {
                 //If docBox has already been created, get GUID.
                 string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
+
+                Guid searchGuid = new Guid(docBoxGUID);
+
+                try
+                {
+                    Rhino.DocObjects.RhinoObject docBox = Rhino.RhinoDoc.ActiveDoc.Objects.FindId(searchGuid);
+                }
+                catch
+                {
+                    makeDocBox();
+                }
 
                 return docBoxGUID;
             }
@@ -122,16 +130,26 @@ namespace natalus.utils
             docBox_attributes.PlotWeightSource = Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject;
             docBox_attributes.PlotWeight = .8;
 
-            //Determine GUID and to return.
+            //Freeze updating while docBox is created.
+            string x10_path = utils.file_structure.getPathFor("x10");
+            System.IO.File.WriteAllText(x10_path, "false");
+
+            //Determine GUID and record to D10.
             Guid newGuid = RhinoDoc.ActiveDoc.Objects.AddRectangle(docBox, docBox_attributes);
             string docBoxGUID = newGuid.ToString();
+
+            string D10_Path = utils.file_structure.getPathFor("D10");
+            System.IO.File.WriteAllText(D10_Path, docBoxGUID);
+
+            //Unfreeze updating.
+            System.IO.File.WriteAllText(x10_path, "True");
 
             //Update illustrator boundaries.
             int conversion = utils.units.conversion();
             string jsxPath = utils.file_structure.getJavascriptPath();
 
             echo.interop echo = new echo.interop();
-            echo.docBounds(docBox_width, docBox_height, conversion, jsxPath);
+            echo.docBounds(docBox_width, System.Math.Abs(docBox_height), conversion, jsxPath);
 
             return docBoxGUID;
         }
@@ -166,6 +184,12 @@ namespace natalus.utils
         {
             echo.interop echo = new echo.interop();
             echo.locate(val, message);
+        }
+
+        public static void alert(string message)
+        {
+            echo.interop echo = new echo.interop();
+            echo.alert(message);
         }
     }
 }
