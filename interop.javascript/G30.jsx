@@ -1,10 +1,34 @@
-﻿//alert("Attempting to run G10");
+﻿//alert("Attempting to run G30");
 
-//Passed arguments:
-//0 - Path to javascript directory.
-//1 - Current runtime id.
-//2 - Path to document NATA.
-//3 - conversion ratio
+//Transformation events also trigger object removal/addition events, based on the type of transformation.
+//If I did my homework, running G20 then G10 like normal should work.
+
+/////G20
+
+var doc = app.activeDocument;
+
+var RdataFile = new File(arguments[2] + "G21." + arguments[1] + ".NATA");
+
+var tolerance = 5;
+var conversion = arguments[3];
+
+RdataFile.open("r");
+
+var data = RdataFile.read().split("\n");
+
+RdataFile.close();
+
+if (data[0] == "empty") {
+    //Do nothing.
+}
+else {
+    for (i = 0, len = data.length - 1; i < len; i++) {
+        doc.pageItems.getByName(data[i]).remove();
+    }
+}
+
+
+/////G10
 
 var doc = app.activeDocument;
 
@@ -19,23 +43,21 @@ var data = dataFile.read().split("\n");
 
 dataFile.close();
 
-if (data[0] == "empty")
-{
+if (data[0] == "empty") {
     //Do nothing.
 }
-else
-{
+else {
 
-//alert("Made it here: " + data[0]);
+    //alert("Made it here: " + data[0]);
 
-//Geometry NATA structure:
-//0 - Type
-//  0 - Linear curve
-//  1 - Linear polyline
-//1 - GUID
-//2 - Layer
-//3 - Span Count
-//4 - Coordinates (delimited by ,)
+    //Geometry NATA structure:
+    //0 - Type
+    //  0 - Linear curve
+    //  1 - Linear polyline
+    //1 - GUID
+    //2 - Layer
+    //3 - Span Count
+    //4 - Coordinates (delimited by ,)
 
     for (i = 0, len = data.length; i < len - 1; i++) {
         var dataset = data[i].split("|");
@@ -97,39 +119,39 @@ else
         } //finally
 
 
-    /* Previous reference:
-    var pathName =  data[0];
-var pathLayer = data[1];
-//TODO: store points within their own array
-var points = data[2].split(",");
-var x1 = points[0].substring(0,5) * conv;
-var y1 = points[1].substring(0,5) * conv;
-var x2 = points[2].substring(0,5) * conv;
-var y2 = points[3].substring(0,5) * conv;
-
-var myLine = doc.pathItems.add();
-//set stroked to true so we can see the path
-myLine.stroked = true;
-var newPoint = myLine.pathPoints.add();
-newPoint.anchor = [x1,y1];
-//bugCatcher++;
-
-//giving the direction points the same value as the
-//anchor point creates a straight line segment
-newPoint.leftDirection = newPoint.anchor;
-newPoint.rightDirection = newPoint.anchor;
-newPoint.pointType = PointType.CORNER;
-var newPoint1 = myLine.pathPoints.add();
-newPoint1.anchor = [x2,y2];
-newPoint1.leftDirection = newPoint1.anchor;
-newPoint1.rightDirection = newPoint1.anchor;
-newPoint1.pointType = PointType.CORNER;
-
-
-app.redraw();
-
-myLine.name = arguments[1];
-    */
+        /* Previous reference:
+        var pathName =  data[0];
+    var pathLayer = data[1];
+    //TODO: store points within their own array
+    var points = data[2].split(",");
+    var x1 = points[0].substring(0,5) * conv;
+    var y1 = points[1].substring(0,5) * conv;
+    var x2 = points[2].substring(0,5) * conv;
+    var y2 = points[3].substring(0,5) * conv;
+    
+    var myLine = doc.pathItems.add();
+    //set stroked to true so we can see the path
+    myLine.stroked = true;
+    var newPoint = myLine.pathPoints.add();
+    newPoint.anchor = [x1,y1];
+    //bugCatcher++;
+    
+    //giving the direction points the same value as the
+    //anchor point creates a straight line segment
+    newPoint.leftDirection = newPoint.anchor;
+    newPoint.rightDirection = newPoint.anchor;
+    newPoint.pointType = PointType.CORNER;
+    var newPoint1 = myLine.pathPoints.add();
+    newPoint1.anchor = [x2,y2];
+    newPoint1.leftDirection = newPoint1.anchor;
+    newPoint1.rightDirection = newPoint1.anchor;
+    newPoint1.pointType = PointType.CORNER;
+    
+    
+    app.redraw();
+    
+    myLine.name = arguments[1];
+        */
 
     }
 

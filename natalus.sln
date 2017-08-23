@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interop.javascript", "inter
 	ProjectSection(SolutionItems) = preProject
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\D10.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\D10.jsx
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G10.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G10.jsx
+		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G20.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G20.jsx
+		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G30.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\G30.jsx
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S10.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S10.jsx
 		..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S20.jsx = ..\..\..\AppData\Roaming\Grasshopper\Libraries\Natalus\JSX\S20.jsx
 	EndProjectSection

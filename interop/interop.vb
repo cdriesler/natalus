@@ -45,10 +45,11 @@
             illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         ElseIf state = 2 Then
             Dim scriptPath = jsx_path + "G20.jsx"
-            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+            illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         ElseIf state = 3 Then
+            'If transformation, run G20 then G10, but in the same script "G30" for threading reasons.
             Dim scriptPath = jsx_path + "G30.jsx"
-            'illustratorRef.DoJavaScriptFile(scriptPath, {path, runtime})
+            illustratorRef.DoJavaScriptFile(scriptPath, {jsx_path, runtime, nata_path, conversion})
         End If
 
     End Function
