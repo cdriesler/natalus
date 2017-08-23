@@ -75,6 +75,14 @@ namespace natalus.utils
 
             return selectionState;
         }
+
+        public static int getGeoDeltaState()
+        {
+            string G00_Path = file_structure.getPathFor("G00");
+            int geoState = Convert.ToInt32(System.IO.File.ReadAllText(G00_Path));
+
+            return geoState;
+        }
     }
 
     public class properties
@@ -82,37 +90,46 @@ namespace natalus.utils
         public static string tryGetDocBox()
         {
             string D10_Path = file_structure.getPathFor("D10");
-
-            if (System.IO.File.Exists(D10_Path) == false)
+            
+            if (delta_states.getGeoDeltaState() == 3)
             {
-                string docBoxGUID = makeDocBox();
+                string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
 
                 return docBoxGUID;
             }
-            else if (System.IO.File.Exists(D10_Path) == true)
+            else
             {
-                //If docBox has already been created, get GUID.
-                string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
-
-                Guid searchGuid = new Guid(docBoxGUID);
-
-                Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(searchGuid);
-
-                try
+                if (System.IO.File.Exists(D10_Path) == false)
                 {
-                    string test = docBox.Curve().ToString();
+                    string docBoxGUID = makeDocBox();
 
                     return docBoxGUID;
                 }
-                catch (Exception e)
+                else if (System.IO.File.Exists(D10_Path) == true)
                 {
-                    string guid = makeDocBox();
+                    //If docBox has already been created, get GUID.
+                    string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
 
-                    return guid;
-                }
-                finally
-                {
-                    //?
+                    Guid searchGuid = new Guid(docBoxGUID);
+
+                    Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(searchGuid);
+
+                    try
+                    {
+                        string test = docBox.Curve().ToString();
+
+                        return docBoxGUID;
+                    }
+                    catch (Exception e)
+                    {
+                        string guid = makeDocBox();
+
+                        return guid;
+                    }
+                    finally
+                    {
+                        //?
+                    }
                 }
             }
 

@@ -73,7 +73,9 @@ namespace natalus
             {
                 utils.properties.setPushState(sendBool);
 
-                //Hide docbox.
+                //"Hide" docbox.
+                Guid docBoxID = new Guid(utils.properties.tryGetDocBox());
+                RhinoDoc.ActiveDoc.Objects.Delete(docBoxID, true);
             }
 
             //Event handlers constellation.
