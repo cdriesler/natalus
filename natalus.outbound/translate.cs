@@ -54,7 +54,7 @@ namespace natalus.outbound
             }
             else
             {
-                System.IO.File.AppendAllText(G10_Path, "X|" + Environment.NewLine);
+                //System.IO.File.AppendAllText(G10_Path, "X|" + Environment.NewLine);
                 return;
             }
 

@@ -28,11 +28,21 @@ namespace natalus.outbound
             //echo.interop debug = new echo.interop();
             //debug.locate(c, destinationPath);
 
+            //Cache docbox GUID.
+            string docBoxID = utils.properties.tryGetDocBox();
+
             //Write GUIDs to file.
             for (int i = 0; i < newSelectedObjects.Length; i++)
             {
                 string newSelectedGUID = newSelectedObjects[i].Id.ToString();
-                System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                if (newSelectedGUID == docBoxID)
+                {
+                    //Skip it. It's the docBox and is not represented in illustrator.
+                }
+                else
+                {
+                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                }
             }
 
             //Set state file S00 to 1: selection increasing.
@@ -48,11 +58,27 @@ namespace natalus.outbound
             string statePath = utils.file_structure.getPathFor("S00");           //S00 - Record state of change.
             string destinationPath = utils.file_structure.getPathFor("S20");    //S20 - Decreasing selection, write GUIDs.
 
+            //Cache docbox GUID.
+            string docBoxID = utils.properties.tryGetDocBox();
+            string D11_Path = utils.file_structure.getPathFor("D11");
+            string pastDocBox = "";
+            if (System.IO.File.Exists(D11_Path))
+            {
+                pastDocBox = System.IO.File.ReadAllText(D11_Path);
+            }
+
             //Write GUIDs to file.
             for (int i = 0; i < newDeselectedObjects.Length; i++)
             {
                 string newSelectedGUID = newDeselectedObjects[i].Id.ToString();
-                System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                if (newSelectedGUID == docBoxID | newSelectedGUID == pastDocBox)
+                {
+                    //Skip it. It's the docBox and is not represented in illustrator.
+                }
+                else
+                {
+                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                }
             }
 
             //Set state file S00 to 2: selection decreasing.

@@ -78,8 +78,16 @@ namespace natalus.utils
 
         public static int getGeoDeltaState()
         {
+            int geoState = 0;
             string G00_Path = file_structure.getPathFor("G00");
-            int geoState = Convert.ToInt32(System.IO.File.ReadAllText(G00_Path));
+            if (System.IO.File.Exists(G00_Path) == false)
+            {
+                geoState = 0;
+            }
+            else
+            {
+                geoState = Convert.ToInt32(System.IO.File.ReadAllText(G00_Path));
+            }
 
             return geoState;
         }
@@ -188,6 +196,11 @@ namespace natalus.utils
             string docBoxGUID = newGuid.ToString();
 
             string D10_Path = utils.file_structure.getPathFor("D10");
+            if (System.IO.File.Exists(D10_Path) && System.IO.File.ReadAllText(D10_Path) != "")
+            {
+                string D11_Path = utils.file_structure.getPathFor("D11");
+                System.IO.File.WriteAllText(D11_Path, System.IO.File.ReadAllText(D10_Path));
+            }
             System.IO.File.WriteAllText(D10_Path, docBoxGUID);
 
             //Unfreeze updating.
