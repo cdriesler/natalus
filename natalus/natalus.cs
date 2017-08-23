@@ -314,6 +314,8 @@ namespace natalus
             }
             else if (sendBool == true)
             {
+                //debug.alert("Tranformation event!");
+
                 string G00_Path = utils.file_structure.getPathFor("G00");
                 System.IO.File.WriteAllText(G00_Path, "3");
             }
@@ -349,6 +351,8 @@ namespace natalus
                 }
                 */
 
+                //debug.alert("Addition event!");
+
                 //Check if change being processed is the docbox.
                 string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)
@@ -378,12 +382,14 @@ namespace natalus
             }
             if (sendBool == true)
             {
+                //debug.alert("Undelete event!");
+
                 string G00_Path = utils.file_structure.getPathFor("G00");
                 if (System.IO.File.Exists(G00_Path) == false)
                 {
-                    System.IO.File.WriteAllText(G00_Path, "1");
+                    System.IO.File.WriteAllText(G00_Path, "3");
                 }
-                outbound.translate.curves(1, ea.TheObject);
+                outbound.translate.curves(3, ea.TheObject);
             }
         }
 
@@ -397,6 +403,8 @@ namespace natalus
             }
             if (sendBool == true)
             {
+                //debug.alert("Removal event!");
+
                 //Check that docbox was not deleted.
                 string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)

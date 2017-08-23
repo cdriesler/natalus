@@ -298,6 +298,8 @@ namespace natalus.outbound
 
         private static void clearGeometryNata()
         {
+            //debug.alert("Clearing Geometery Nata");
+
             //Determine paths for all selection .nata files.
             string G10_Path = utils.file_structure.getPathFor("G10");
             string G20_Path = utils.file_structure.getPathFor("G20");
@@ -305,6 +307,8 @@ namespace natalus.outbound
             //PURGE ALL TEXT
             System.IO.File.WriteAllText(G10_Path, "");
             System.IO.File.WriteAllText(G20_Path, "");
+
+            //debug.alert("Geometry Nata successfully cleared");
         }
     }
 }
