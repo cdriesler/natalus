@@ -118,8 +118,12 @@ namespace natalus
             RhinoDoc.BeforeTransformObjects += (sender, ea) => OnBeforeTransform(ea);
             */
 
+            RhinoDoc.ReplaceRhinoObject -= (sender, ea) => ReplaceObjUpdateState();
+            RhinoDoc.ReplaceRhinoObject += (sender, ea) => ReplaceObjUpdateState();
+
             RhinoDoc.BeforeTransformObjects -= (sender, ea) => TransformUpdateState();
             RhinoDoc.BeforeTransformObjects += (sender, ea) => TransformUpdateState();
+
 
             //When doc saved, copy critical existing data if file name changed. (x10, D01, D10)
             //RhinoDoc.BeginSaveDocument
@@ -315,6 +319,23 @@ namespace natalus
             else if (sendBool == true)
             {
                 //debug.alert("Tranformation event!");
+
+                string G00_Path = utils.file_structure.getPathFor("G00");
+                System.IO.File.WriteAllText(G00_Path, "3");
+            }
+        }
+
+        public void ReplaceObjUpdateState()
+        {
+            bool sendBool = utils.properties.getPushState();
+
+            if (sendBool == false)
+            {
+                //Do nothing.
+            }
+            else if (sendBool == true)
+            {
+                //debug.alert("Object replaced!");
 
                 string G00_Path = utils.file_structure.getPathFor("G00");
                 System.IO.File.WriteAllText(G00_Path, "3");
