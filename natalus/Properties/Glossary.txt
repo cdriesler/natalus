@@ -44,6 +44,9 @@ d00:	illustrator units x rhino units
 d10:	guid of rectangle that represents docbounds in rhino
 		<string> guid
 
+d11:	guid of previous rectangle if being replaced/overwritten
+		<string> guid
+
 d20:	rhino coordinate of top left corner of docbox in model space (coordinate modifier for all geometry translations)
 		<float> x | <float> y
 

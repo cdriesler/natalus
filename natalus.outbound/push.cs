@@ -28,11 +28,21 @@ namespace natalus.outbound
             //echo.interop debug = new echo.interop();
             //debug.locate(c, destinationPath);
 
+            //Cache docbox GUID.
+            string docBoxID = utils.properties.tryGetDocBox();
+
             //Write GUIDs to file.
             for (int i = 0; i < newSelectedObjects.Length; i++)
             {
                 string newSelectedGUID = newSelectedObjects[i].Id.ToString();
-                System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                if (newSelectedGUID == docBoxID)
+                {
+                    //Skip it. It's the docBox and is not represented in illustrator.
+                }
+                else
+                {
+                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                }
             }
 
             //Set state file S00 to 1: selection increasing.
@@ -48,11 +58,27 @@ namespace natalus.outbound
             string statePath = utils.file_structure.getPathFor("S00");           //S00 - Record state of change.
             string destinationPath = utils.file_structure.getPathFor("S20");    //S20 - Decreasing selection, write GUIDs.
 
+            //Cache docbox GUID.
+            string docBoxID = utils.properties.tryGetDocBox();
+            string D11_Path = utils.file_structure.getPathFor("D11");
+            string pastDocBox = "";
+            if (System.IO.File.Exists(D11_Path))
+            {
+                pastDocBox = System.IO.File.ReadAllText(D11_Path);
+            }
+
             //Write GUIDs to file.
             for (int i = 0; i < newDeselectedObjects.Length; i++)
             {
                 string newSelectedGUID = newDeselectedObjects[i].Id.ToString();
-                System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                if (newSelectedGUID == docBoxID | newSelectedGUID == pastDocBox)
+                {
+                    //Skip it. It's the docBox and is not represented in illustrator.
+                }
+                else
+                {
+                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                }
             }
 
             //Set state file S00 to 2: selection decreasing.
@@ -70,9 +96,11 @@ namespace natalus.outbound
 
             string jsxPath = utils.file_structure.getJavascriptPath();
             string runtime = utils.file_structure.getDocRuntime();
+            string nataPath = utils.file_structure.getNataPath();
+            int conversion = utils.units.conversion();
 
             echo.interop echo = new echo.interop();
-            echo.selection(3, jsxPath, runtime);
+            echo.selection(3, jsxPath, runtime, nataPath, conversion);
 
             return 2;
         }
@@ -123,9 +151,12 @@ namespace natalus.outbound
             File.WriteAllText(S11_Path, File.ReadAllText(S10_Path));
             File.WriteAllText(S21_Path, File.ReadAllText(S20_Path));
 
+            string nataPath = utils.file_structure.getNataPath();
+            int conversion = utils.units.conversion();
+
             //Tell illustrator to run selection update script, based on state.
             echo.interop echo = new echo.interop();
-            echo.selection(state, jsxPath, runtime);
+            echo.selection(state, jsxPath, runtime, nataPath, conversion);
 
             //Clear original .nata file data.
             clearSelectionNata();
@@ -221,6 +252,7 @@ namespace natalus.outbound
 
             //Determine filepath for illustrator extendscript processes.
             string jsxPath = utils.file_structure.getJavascriptPath();
+            string nataPath = utils.file_structure.getNataPath();
 
             //Determine current document runtime to send to interop.
             string runtime = utils.file_structure.getDocRuntime();
@@ -231,6 +263,7 @@ namespace natalus.outbound
 
             if (File.Exists(G10_Path) == false)
             {
+                //System.Threading.Thread.Sleep(500); //Weird things happening with initial file creation...
                 File.WriteAllText(G10_Path, "empty");
             }
             else if (File.Exists(G10_Path) == true && File.ReadAllText(G10_Path) == "")
@@ -239,6 +272,7 @@ namespace natalus.outbound
             }
             if (File.Exists(G20_Path) == false)
             {
+                System.Threading.Thread.Sleep(500);
                 File.WriteAllText(G20_Path, "empty");
             }
             else if (File.Exists(G20_Path) == true && File.ReadAllText(G20_Path) == "")
@@ -252,9 +286,11 @@ namespace natalus.outbound
             File.WriteAllText(G11_Path, File.ReadAllText(G10_Path));
             File.WriteAllText(G21_Path, File.ReadAllText(G20_Path));
 
-            //Tell illustrator to run selection update script, based on state.
+            int conversion = utils.units.conversion();
+
+            //Tell illustrator to run geometry update script, based on state.
             echo.interop echo = new echo.interop();
-            echo.geometry(state, jsxPath, runtime);
+            echo.geometry(state, jsxPath, runtime, nataPath, conversion);
 
             //Clear original .nata file data.
             clearGeometryNata();

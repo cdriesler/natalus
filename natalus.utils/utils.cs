@@ -35,6 +35,22 @@ namespace natalus.utils
             return finalPath;
         }
 
+        public static string getNataPath()
+        {
+            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
+            string docName = "UNSAVED";
+            if (Rhino.RhinoDoc.ActiveDoc.Name != null)
+            {
+                docName = Rhino.RhinoDoc.ActiveDoc.Name.ToUpper().Replace(".3DM", "");
+            }
+
+            string docFolder = docName + "." + rhinoDocRuntime;
+
+            string nataPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\NATA\\" + docFolder + "\\");
+
+            return nataPath;
+        }
+
         public static string getJavascriptPath()
         {
             string jsxPath = Grasshopper.Folders.DefaultAssemblyFolder.Replace("Libraries\\", "Libraries\\Natalus\\JSX\\");
@@ -59,37 +75,70 @@ namespace natalus.utils
 
             return selectionState;
         }
+
+        public static int getGeoDeltaState()
+        {
+            int geoState = 0;
+            string G00_Path = file_structure.getPathFor("G00");
+            if (System.IO.File.Exists(G00_Path) == false)
+            {
+                geoState = 0;
+            }
+            else
+            {
+                geoState = Convert.ToInt32(System.IO.File.ReadAllText(G00_Path));
+            }
+
+            return geoState;
+        }
     }
 
     public class properties
     {
-        public static string getDocBoxID()
+        public static string tryGetDocBox()
         {
             string D10_Path = file_structure.getPathFor("D10");
-
-            if (System.IO.File.Exists(D10_Path) == false)
+            
+            if (delta_states.getGeoDeltaState() == 3)
             {
-                string docBoxGUID = makeDocBox();
+                string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
 
                 return docBoxGUID;
             }
-            else if (System.IO.File.Exists(D10_Path) == true)
+            else
             {
-                //If docBox has already been created, get GUID.
-                string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
-
-                Guid searchGuid = new Guid(docBoxGUID);
-
-                try
+                if (System.IO.File.Exists(D10_Path) == false)
                 {
-                    Rhino.DocObjects.RhinoObject docBox = Rhino.RhinoDoc.ActiveDoc.Objects.FindId(searchGuid);
-                }
-                catch
-                {
-                    makeDocBox();
-                }
+                    string docBoxGUID = makeDocBox();
 
-                return docBoxGUID;
+                    return docBoxGUID;
+                }
+                else if (System.IO.File.Exists(D10_Path) == true)
+                {
+                    //If docBox has already been created, get GUID.
+                    string docBoxGUID = System.IO.File.ReadAllText(D10_Path);
+
+                    Guid searchGuid = new Guid(docBoxGUID);
+
+                    Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(searchGuid);
+
+                    try
+                    {
+                        string test = docBox.Curve().ToString();
+
+                        return docBoxGUID;
+                    }
+                    catch (Exception e)
+                    {
+                        string guid = makeDocBox();
+
+                        return guid;
+                    }
+                    finally
+                    {
+                        //?
+                    }
+                }
             }
 
             return "error";
@@ -147,6 +196,11 @@ namespace natalus.utils
             string docBoxGUID = newGuid.ToString();
 
             string D10_Path = utils.file_structure.getPathFor("D10");
+            if (System.IO.File.Exists(D10_Path) && System.IO.File.ReadAllText(D10_Path) != "")
+            {
+                string D11_Path = utils.file_structure.getPathFor("D11");
+                System.IO.File.WriteAllText(D11_Path, System.IO.File.ReadAllText(D10_Path));
+            }
             System.IO.File.WriteAllText(D10_Path, docBoxGUID);
 
             //Unfreeze updating.
@@ -160,6 +214,37 @@ namespace natalus.utils
             echo.docBounds(docBox_width, System.Math.Abs(docBox_height), conversion, jsxPath);
 
             return docBoxGUID;
+        }
+
+        public static Rhino.Geometry.Point3d getRefPoint()
+        {
+            Guid docBoxID = new Guid(utils.properties.tryGetDocBox());
+            Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(docBoxID);
+
+            Rhino.Geometry.Curve docBoxCurve = docBox.Curve();
+
+            List<double> xVals = new List<double>();
+            List<double> yVals = new List<double>();
+
+            int spanCount = docBoxCurve.SpanCount;
+            for (int i = 0; i < spanCount; i++)
+            {
+                double activeParameter = docBoxCurve.SpanDomain(i).Min;
+                Rhino.Geometry.Point3d activePoint = docBoxCurve.PointAt(activeParameter);
+
+                double activeX = activePoint.X;
+                xVals.Add(activeX);
+
+                double activeY = activePoint.Y;
+                yVals.Add(activeY);
+            }
+
+            xVals.Sort();
+            yVals.Sort();
+
+            Rhino.Geometry.Point3d docBoxRefPoint = new Rhino.Geometry.Point3d(xVals[0], yVals[spanCount - 1], 0);
+
+            return docBoxRefPoint;
         }
 
         //Bad workaround attempt. Event handler interaction with grasshopper input not working like I want it to.

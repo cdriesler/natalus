@@ -62,13 +62,28 @@ namespace natalus
                 utils.properties.setPushState(sendBool);
 
                 //Initialize docbox!
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxTest = utils.properties.tryGetDocBox();
+
+                if (docBoxTest == "error")
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Fatal error locating artboard reference in Rhino.");
+                }
             }
             else if (sendBool == false)
             {
                 utils.properties.setPushState(sendBool);
 
-                //Hide docbox.
+                //"Hide" docbox.
+                string D10_Path = utils.file_structure.getPathFor("D10");
+                if (System.IO.File.Exists(D10_Path) == false)
+                {
+                    //Do nothing, docbox has not yet been created.
+                }
+                else
+                {
+                    Guid docBoxID = new Guid(utils.properties.tryGetDocBox());
+                    RhinoDoc.ActiveDoc.Objects.Delete(docBoxID, true);
+                }
             }
 
             //Event handlers constellation.
@@ -314,8 +329,28 @@ namespace natalus
             }
             else if (sendBool == true)
             {
+                /* TODO: Undoing a docbox transformation ditches it and creates a new one without deleting the old one.
+                string D10_Path = utils.file_structure.getPathFor("D10");
+                string D11_Path = utils.file_structure.getPathFor("D11");
+                string docBoxCheck = "";
+                    
+                if (System.IO.File.Exists(D11_Path))
+                {
+                    docBoxCheck = System.IO.File.ReadAllText(D11_Path);
+                }
+
+                if (ea.TheObject.Id.ToString() == docBoxCheck)
+                {
+                    //If a docbox tranformation is undone, remove new replacement box and reset D10.
+                    Guid objToDelete = new Guid(System.IO.File.ReadAllText(D10_Path));
+                    Rhino.RhinoDoc.ActiveDoc.Objects.Delete(objToDelete, true);
+
+                    System.IO.File.WriteAllText(D10_Path, docBoxCheck);
+                }
+                */
+
                 //Check if change being processed is the docbox.
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)
                 {
                     outbound.push.docBoxChanges(ea.TheObject);
@@ -327,7 +362,6 @@ namespace natalus
                     {
                         System.IO.File.WriteAllText(G00_Path, "1");
                     }
-
                     outbound.translate.curves(1, ea.TheObject);
                 }
             }
@@ -349,7 +383,6 @@ namespace natalus
                 {
                     System.IO.File.WriteAllText(G00_Path, "1");
                 }
-
                 outbound.translate.curves(1, ea.TheObject);
             }
         }
@@ -365,7 +398,7 @@ namespace natalus
             if (sendBool == true)
             {
                 //Check that docbox was not deleted.
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)
                 {
                     string geoStatePath = utils.file_structure.getPathFor("G00");
