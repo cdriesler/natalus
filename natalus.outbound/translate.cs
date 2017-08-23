@@ -42,7 +42,7 @@ namespace natalus.outbound
             Rhino.Geometry.Curve newCurve = null;
 
             int incomingLayerIndex = geo.Attributes.LayerIndex;
-            Rhino.DocObjects.Layer incomingLayer = Rhino.RhinoDoc.ActiveDoc.Layers.FindIndex(incomingLayerIndex);
+            Rhino.DocObjects.Layer incomingLayer = Rhino.RhinoDoc.ActiveDoc.Layers.CurrentLayer;
             string incomingLayerName = incomingLayer.Name;
 
             Rhino.DocObjects.ObjRef oRef = new Rhino.DocObjects.ObjRef(incomingGuid);

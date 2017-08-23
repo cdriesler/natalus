@@ -16,7 +16,7 @@ namespace natalus.utils
     {
         public static string getPathFor(string process)
         {
-            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
+            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.DocumentId.ToString();
             string docName = "UNSAVED";
             if (Rhino.RhinoDoc.ActiveDoc.Name != null)
             {
@@ -37,7 +37,7 @@ namespace natalus.utils
 
         public static string getNataPath()
         {
-            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
+            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.DocumentId.ToString();
             string docName = "UNSAVED";
             if (Rhino.RhinoDoc.ActiveDoc.Name != null)
             {
@@ -60,7 +60,7 @@ namespace natalus.utils
 
         public static string getDocRuntime()
         {
-            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber.ToString();
+            string rhinoDocRuntime = Rhino.RhinoDoc.ActiveDoc.DocumentId.ToString();
 
             return rhinoDocRuntime;
         }
@@ -187,12 +187,16 @@ namespace natalus.utils
             docBox_attributes.PlotWeightSource = Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject;
             docBox_attributes.PlotWeight = .8;
 
+            //(Rhino 5) Convert docBox Rectangle3D to polyline curve.
+            Rhino.Geometry.Polyline docBoxPolyline = docBox.ToPolyline();
+
             //Freeze updating while docBox is created.
             string x10_path = utils.file_structure.getPathFor("x10");
             System.IO.File.WriteAllText(x10_path, "false");
 
             //Determine GUID and record to D10.
-            Guid newGuid = RhinoDoc.ActiveDoc.Objects.AddRectangle(docBox, docBox_attributes);
+            Guid newGuid = RhinoDoc.ActiveDoc.Objects.AddPolyline(docBoxPolyline);
+
             string docBoxGUID = newGuid.ToString();
 
             string D10_Path = utils.file_structure.getPathFor("D10");

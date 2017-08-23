@@ -57,7 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="natalus.cs" />
-    <Compile Include="natalus_file_structure.cs" />
     <Compile Include="nata_state_machine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
