@@ -62,7 +62,12 @@ namespace natalus
                 utils.properties.setPushState(sendBool);
 
                 //Initialize docbox!
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxTest = utils.properties.tryGetDocBox();
+
+                if (docBoxTest == "error")
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Fatal error locating artboard reference in Rhino.");
+                }
             }
             else if (sendBool == false)
             {
@@ -315,7 +320,7 @@ namespace natalus
             else if (sendBool == true)
             {
                 //Check if change being processed is the docbox.
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)
                 {
                     outbound.push.docBoxChanges(ea.TheObject);
@@ -327,7 +332,6 @@ namespace natalus
                     {
                         System.IO.File.WriteAllText(G00_Path, "1");
                     }
-
                     outbound.translate.curves(1, ea.TheObject);
                 }
             }
@@ -365,7 +369,7 @@ namespace natalus
             if (sendBool == true)
             {
                 //Check that docbox was not deleted.
-                string docBoxID = utils.properties.getDocBoxID();
+                string docBoxID = utils.properties.tryGetDocBox();
                 if (ea.ObjectId.ToString() == docBoxID)
                 {
                     string geoStatePath = utils.file_structure.getPathFor("G00");

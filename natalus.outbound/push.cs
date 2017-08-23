@@ -237,6 +237,7 @@ namespace natalus.outbound
 
             if (File.Exists(G10_Path) == false)
             {
+                //System.Threading.Thread.Sleep(500); //Weird things happening with initial file creation...
                 File.WriteAllText(G10_Path, "empty");
             }
             else if (File.Exists(G10_Path) == true && File.ReadAllText(G10_Path) == "")
@@ -245,6 +246,7 @@ namespace natalus.outbound
             }
             if (File.Exists(G20_Path) == false)
             {
+                System.Threading.Thread.Sleep(500);
                 File.WriteAllText(G20_Path, "empty");
             }
             else if (File.Exists(G20_Path) == true && File.ReadAllText(G20_Path) == "")

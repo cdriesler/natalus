@@ -79,7 +79,7 @@ namespace natalus.utils
 
     public class properties
     {
-        public static string getDocBoxID()
+        public static string tryGetDocBox()
         {
             string D10_Path = file_structure.getPathFor("D10");
 
@@ -96,16 +96,24 @@ namespace natalus.utils
 
                 Guid searchGuid = new Guid(docBoxGUID);
 
+                Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(searchGuid);
+
                 try
                 {
-                    Rhino.DocObjects.RhinoObject docBox = Rhino.RhinoDoc.ActiveDoc.Objects.FindId(searchGuid);
-                }
-                catch
-                {
-                    makeDocBox();
-                }
+                    string test = docBox.Curve().ToString();
 
-                return docBoxGUID;
+                    return docBoxGUID;
+                }
+                catch (Exception e)
+                {
+                    string guid = makeDocBox();
+
+                    return guid;
+                }
+                finally
+                {
+                    //?
+                }
             }
 
             return "error";
@@ -180,7 +188,7 @@ namespace natalus.utils
 
         public static Rhino.Geometry.Point3d getRefPoint()
         {
-            Guid docBoxID = new Guid(utils.properties.getDocBoxID());
+            Guid docBoxID = new Guid(utils.properties.tryGetDocBox());
             Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(docBoxID);
 
             Rhino.Geometry.Curve docBoxCurve = docBox.Curve();

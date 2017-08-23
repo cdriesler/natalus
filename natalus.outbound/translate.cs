@@ -33,7 +33,8 @@ namespace natalus.outbound
 
             if (System.IO.File.Exists(G10_Path) == false)
             {
-                System.IO.File.Create(G10_Path);
+                System.IO.File.WriteAllText(G10_Path, "");
+                //System.Threading.Thread.Sleep(500);
             }
             
             //Parse curve geometry from RhinoObject.
@@ -81,7 +82,20 @@ namespace natalus.outbound
                     string x2 = (endPoint.X - refPointX).ToString();
                     string y2 = (endPoint.Y - refPointY).ToString();
 
-                    System.IO.File.AppendAllText(G10_Path, "0|" + incomingGuid + "|" + incomingLayer + "|" + newCurve.SpanCount.ToString() + "|" + x1 + "," + y1 + "," + x2 + "," + y2 + Environment.NewLine);
+                    //utils.debug.alert(G10_Path);
+                    //utils.debug.alert(incomingGuid.ToString());
+                    //utils.debug.alert(incomingLayerName);
+
+                    try
+                    {
+                        System.IO.File.AppendAllText(G10_Path, "0|" + incomingGuid.ToString() + "|" + incomingLayerName + "|1|" + x1 + "," + y1 + "," + x2 + "," + y2 + Environment.NewLine);
+                    }
+                    catch (Exception e)
+                    {
+                        utils.debug.alert(e.ToString());
+                    }
+
+                    //utils.debug.alert("Pausing!!");
                 }
                 else if (newCurve.SpanCount > 1)
                 {
