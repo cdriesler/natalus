@@ -143,7 +143,7 @@ namespace natalus.outbound
             else if (newCurve.Degree > 1)
             {
                 //Generate degree 3 approximation of incoming curve. (Low tolerance makes it more than "good enough")
-                Rhino.Geometry.BezierCurve[] bCurveSpans = Rhino.Geometry.BezierCurve.CreateCubicBeziers(newCurve, 0.1, 0.1);
+                Rhino.Geometry.BezierCurve[] bCurveSpans = Rhino.Geometry.BezierCurve.CreateCubicBeziers(newCurve, 0.01, 0.01);
                 int bCurveCount = bCurveSpans.Length;
 
                 List<string> bPointData = new List<string>();
