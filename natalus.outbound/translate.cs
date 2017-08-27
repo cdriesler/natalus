@@ -258,11 +258,6 @@ namespace natalus.outbound
             //Determine and sanitize cache file for geometry removals.
             string G20_Path = utils.file_structure.getPathFor("G20");
 
-            if (System.IO.File.Exists(G20_Path) == false)
-            {
-                System.IO.File.Create(G20_Path);
-            }
-
             //Cache deleted items to G20.
             System.IO.File.AppendAllText(G20_Path, geo.Id.ToString() + Environment.NewLine);
         }

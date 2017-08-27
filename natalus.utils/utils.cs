@@ -144,6 +144,28 @@ namespace natalus.utils
             return "error";
         }
 
+        public static string tryGetDocBoxLabel()
+        {
+            string D30_Path = file_structure.getPathFor("D30");
+
+            string docBoxLabelGUID = System.IO.File.ReadAllText(D30_Path);
+
+            Guid searchGuid = new Guid(docBoxLabelGUID);
+
+            Rhino.DocObjects.ObjRef docBox = new Rhino.DocObjects.ObjRef(searchGuid);
+
+            try
+            {
+                string test = docBox.TextEntity().ToString();
+
+                return searchGuid.ToString();
+            }
+            catch (Exception e)
+            {
+                return "error";
+            }
+        }
+
         public static string makeDocBox()
         {
             //If docBox has not been created, create it and place it on its natalus layer.
@@ -163,14 +185,47 @@ namespace natalus.utils
             }
             */
 
-            //Set initial dimensions and record to D01.
-            double docBox_width = 12;
-            double docBox_height = -12;
-
+            //Set initial dimensions and record to D01 if D01 does not exist.
             string D01_Path = utils.file_structure.getPathFor("D01");
-            System.IO.File.WriteAllText(D01_Path, "12|12");
+            string D20_Path = utils.file_structure.getPathFor("D20");
+
+            double docBox_width = 12;
+            double docBox_height = 12;
+
+            Rhino.Geometry.Point3d refPoint = new Rhino.Geometry.Point3d(0, 0, 0);
+
+            //Check if previous dim configuration existed.
+            if (System.IO.File.Exists(D01_Path) == true)
+            {
+                string[] dims = System.IO.File.ReadAllText(D01_Path).Split('|');
+
+                docBox_width = Convert.ToDouble(dims[0]);
+                docBox_height = Convert.ToDouble(dims[1]);
+            }
+            else
+            {
+                System.IO.File.WriteAllText(D01_Path, "12|12");
+            }
+
+            double adjust = 0;
+
+            if (System.IO.File.Exists(D20_Path) == true)
+            {
+                string[] coords = System.IO.File.ReadAllText(D20_Path).Split(',');
+
+                refPoint.X = Convert.ToDouble(coords[0]);
+                refPoint.Y = Convert.ToDouble(coords[1]);
+
+                adjust = docBox_height;
+            }
+            else if (System.IO.File.Exists(D20_Path) == false)
+            {
+                adjust = 0;
+            }
 
             Rhino.Geometry.Plane docBox_plane = Rhino.Geometry.Plane.WorldXY;
+            docBox_plane.OriginX = refPoint.X;
+            docBox_plane.OriginY = refPoint.Y - adjust;
 
             Rhino.Geometry.Rectangle3d docBox = new Rhino.Geometry.Rectangle3d(docBox_plane, docBox_width, docBox_height);
 
@@ -179,13 +234,6 @@ namespace natalus.utils
             //Until layer process resolved, docBox to be on any layer.
             int activeIndex = RhinoDoc.ActiveDoc.Layers.CurrentLayerIndex;
             docBox_attributes.LayerIndex = activeIndex;
-
-            System.Drawing.Color docBoxColor = System.Drawing.Color.LightGray;
-
-            docBox_attributes.ColorSource = Rhino.DocObjects.ObjectColorSource.ColorFromObject;
-            docBox_attributes.ObjectColor = docBoxColor;
-            docBox_attributes.PlotWeightSource = Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject;
-            docBox_attributes.PlotWeight = .8;
 
             //(Rhino 5) Convert docBox Rectangle3D to polyline curve.
             Rhino.Geometry.Polyline docBoxPolyline = docBox.ToPolyline();
@@ -197,6 +245,45 @@ namespace natalus.utils
             //Determine GUID and record to D10.
             Guid newGuid = RhinoDoc.ActiveDoc.Objects.AddPolyline(docBoxPolyline);
 
+            Rhino.DocObjects.ObjRef docBoxObj = new Rhino.DocObjects.ObjRef(newGuid);
+            Rhino.DocObjects.CurveObject docBoxCurve = docBoxObj.Object() as Rhino.DocObjects.CurveObject;
+
+            //Set curve to Illustrator orange.
+            System.Drawing.Color docBoxColor = System.Drawing.Color.FromArgb(240, 120, 6);
+
+            docBoxCurve.Attributes.ColorSource = Rhino.DocObjects.ObjectColorSource.ColorFromObject;
+            docBoxCurve.Attributes.ObjectColor = docBoxColor;
+            docBoxCurve.Attributes.PlotColorSource = Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject;
+            docBoxCurve.Attributes.PlotColor = docBoxColor;
+            docBoxCurve.Attributes.PlotWeightSource = Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject;
+            docBoxCurve.Attributes.PlotWeight = 1.5;
+
+            docBoxCurve.CommitChanges();
+
+            //Label it!
+            Rhino.Geometry.TextEntity label = new Rhino.Geometry.TextEntity();
+
+            label.TextHeight = .4;
+
+            Rhino.Geometry.Plane label_plane = Rhino.Geometry.Plane.WorldXY;
+            label_plane.OriginX = docBox_plane.OriginX;
+            label_plane.OriginY = docBox_plane.OriginY - .4 - .1;
+            label.Plane = label_plane;
+
+            label.Text = ("Linked Illustrator Artboard");
+
+            Guid docBoxLabel = RhinoDoc.ActiveDoc.Objects.AddText(label);
+
+            Rhino.DocObjects.ObjRef labelObj = new Rhino.DocObjects.ObjRef(docBoxLabel);
+            Rhino.DocObjects.TextObject labelText = labelObj.Object() as Rhino.DocObjects.TextObject;
+
+            labelText.Attributes.ColorSource = Rhino.DocObjects.ObjectColorSource.ColorFromObject;
+            labelText.Attributes.ObjectColor = docBoxColor;
+            labelText.Attributes.PlotColorSource = Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject;
+            labelText.Attributes.PlotColor = docBoxColor;
+
+            labelText.CommitChanges();
+
             string docBoxGUID = newGuid.ToString();
 
             string D10_Path = utils.file_structure.getPathFor("D10");
@@ -206,6 +293,16 @@ namespace natalus.utils
                 System.IO.File.WriteAllText(D11_Path, System.IO.File.ReadAllText(D10_Path));
             }
             System.IO.File.WriteAllText(D10_Path, docBoxGUID);
+
+            string docBoxLabelGUID = docBoxLabel.ToString();
+
+            string D30_Path = utils.file_structure.getPathFor("D30");
+            if (System.IO.File.Exists(D30_Path) && System.IO.File.ReadAllText(D30_Path) != "")
+            {
+                string D31_Path = utils.file_structure.getPathFor("D31");
+                System.IO.File.WriteAllText(D31_Path, System.IO.File.ReadAllText(D30_Path));
+            }
+            System.IO.File.WriteAllText(D30_Path, docBoxGUID);
 
             //Unfreeze updating.
             System.IO.File.WriteAllText(x10_path, "True");
