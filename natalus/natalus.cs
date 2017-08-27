@@ -73,6 +73,9 @@ namespace natalus
             {
                 utils.properties.setPushState(sendBool);
 
+                outbound.push.clearGeometryNata();
+                outbound.push.clearSelectionNata();
+
                 //"Hide" docbox.
                 string D10_Path = utils.file_structure.getPathFor("D10");
                 if (System.IO.File.Exists(D10_Path) == false)
@@ -85,7 +88,7 @@ namespace natalus
                     RhinoDoc.ActiveDoc.Objects.Delete(docBoxID, true);
 
                     string D30_Path = utils.file_structure.getPathFor("D30");
-                    if (System.IO.File.Exists(D30_Path))
+                    if (System.IO.File.Exists(D30_Path) == true)
                     {
                         Guid labelID = new Guid(System.IO.File.ReadAllText(D30_Path));
                         RhinoDoc.ActiveDoc.Objects.Delete(labelID, true);
@@ -457,8 +460,12 @@ namespace natalus
                     //utils.debug.alert("DocBox was deleted!");
 
                     //Remove temporary label.
-                    Guid labelID = new Guid(utils.properties.tryGetDocBoxLabel());
-                    RhinoDoc.ActiveDoc.Objects.Delete(labelID, true);
+                    string D30_Path = utils.file_structure.getPathFor("D30");
+                    if (System.IO.File.Exists(D30_Path) == true)
+                    {
+                        Guid labelID = new Guid(System.IO.File.ReadAllText(D30_Path));
+                        RhinoDoc.ActiveDoc.Objects.Delete(labelID, true);
+                    }
 
                     //Record its GUID under D11, previous docBox information.
                     string D11_Path = utils.file_structure.getPathFor("D11");

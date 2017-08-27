@@ -248,6 +248,16 @@ namespace natalus.utils
             Rhino.DocObjects.ObjRef docBoxObj = new Rhino.DocObjects.ObjRef(newGuid);
             Rhino.DocObjects.CurveObject docBoxCurve = docBoxObj.Object() as Rhino.DocObjects.CurveObject;
 
+            string docBoxGUID = newGuid.ToString();
+
+            string D10_Path = utils.file_structure.getPathFor("D10");
+            if (System.IO.File.Exists(D10_Path) && System.IO.File.ReadAllText(D10_Path) != "")
+            {
+                string D11_Path = utils.file_structure.getPathFor("D11");
+                System.IO.File.WriteAllText(D11_Path, System.IO.File.ReadAllText(D10_Path));
+            }
+            System.IO.File.WriteAllText(D10_Path, docBoxGUID);
+
             //Set curve to Illustrator orange.
             System.Drawing.Color docBoxColor = System.Drawing.Color.FromArgb(240, 120, 6);
 
@@ -284,16 +294,6 @@ namespace natalus.utils
 
             labelText.CommitChanges();
 
-            string docBoxGUID = newGuid.ToString();
-
-            string D10_Path = utils.file_structure.getPathFor("D10");
-            if (System.IO.File.Exists(D10_Path) && System.IO.File.ReadAllText(D10_Path) != "")
-            {
-                string D11_Path = utils.file_structure.getPathFor("D11");
-                System.IO.File.WriteAllText(D11_Path, System.IO.File.ReadAllText(D10_Path));
-            }
-            System.IO.File.WriteAllText(D10_Path, docBoxGUID);
-
             string docBoxLabelGUID = docBoxLabel.ToString();
 
             string D30_Path = utils.file_structure.getPathFor("D30");
@@ -302,7 +302,8 @@ namespace natalus.utils
                 string D31_Path = utils.file_structure.getPathFor("D31");
                 System.IO.File.WriteAllText(D31_Path, System.IO.File.ReadAllText(D30_Path));
             }
-            System.IO.File.WriteAllText(D30_Path, docBoxGUID);
+            System.IO.File.WriteAllText(D30_Path, docBoxLabelGUID);
+
 
             //Unfreeze updating.
             System.IO.File.WriteAllText(x10_path, "True");
