@@ -30,18 +30,27 @@ namespace natalus.outbound
 
             //Cache docbox GUID.
             string docBoxID = utils.properties.tryGetDocBox();
+            string D11_Path = utils.file_structure.getPathFor("D11");
+            string pastDocBox = "";
+            if (System.IO.File.Exists(D11_Path))
+            {
+                pastDocBox = System.IO.File.ReadAllText(D11_Path);
+            }
 
             //Write GUIDs to file.
             for (int i = 0; i < newSelectedObjects.Length; i++)
             {
                 string newSelectedGUID = newSelectedObjects[i].Id.ToString();
-                if (newSelectedGUID == docBoxID)
+                if (newSelectedGUID == docBoxID | newSelectedGUID == pastDocBox)
                 {
                     //Skip it. It's the docBox and is not represented in illustrator.
                 }
                 else
                 {
-                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                    if (newSelectedObjects[i].ObjectType.ToString().ToLower().Contains("curve") == true)
+                    {
+                        System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                    }
                 }
             }
 
@@ -77,7 +86,10 @@ namespace natalus.outbound
                 }
                 else
                 {
-                    System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                    if (newDeselectedObjects[i].ObjectType.ToString().ToLower().Contains("curve") == true)
+                    {
+                        System.IO.File.AppendAllText(destinationPath, newSelectedGUID + Environment.NewLine);
+                    }
                 }
             }
 
@@ -154,16 +166,16 @@ namespace natalus.outbound
             string nataPath = utils.file_structure.getNataPath();
             int conversion = utils.units.conversion();
 
+            //Clear original .nata file data.
+            clearSelectionNata();
+
             //Tell illustrator to run selection update script, based on state.
             echo.interop echo = new echo.interop();
             echo.selection(state, jsxPath, runtime, nataPath, conversion);
-
-            //Clear original .nata file data.
-            clearSelectionNata();
         }
 
         //Clear selection .nata files on successful illustrator sync. Raise error if failure ocurred.
-        private static void clearSelectionNata()
+        public static void clearSelectionNata()
         {
             //Determine paths for all selection .nata files.
             string S10_Path = utils.file_structure.getPathFor("S10");
@@ -272,7 +284,6 @@ namespace natalus.outbound
             }
             if (File.Exists(G20_Path) == false)
             {
-                System.Threading.Thread.Sleep(500);
                 File.WriteAllText(G20_Path, "empty");
             }
             else if (File.Exists(G20_Path) == true && File.ReadAllText(G20_Path) == "")
@@ -288,15 +299,15 @@ namespace natalus.outbound
 
             int conversion = utils.units.conversion();
 
+            //Clear original .nata file data.
+            clearGeometryNata();
+
             //Tell illustrator to run geometry update script, based on state.
             echo.interop echo = new echo.interop();
             echo.geometry(state, jsxPath, runtime, nataPath, conversion);
-
-            //Clear original .nata file data.
-            clearGeometryNata();
         }
 
-        private static void clearGeometryNata()
+        public static void clearGeometryNata()
         {
             //debug.alert("Clearing Geometery Nata");
 

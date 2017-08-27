@@ -50,6 +50,9 @@ d11:	guid of previous rectangle if being replaced/overwritten
 d20:	rhino coordinate of top left corner of docbox in model space (coordinate modifier for all geometry translations)
 		<float> x | <float> y
 
+d30:	guid of text label
+		<string> guid
+
 d01:	illustrator document bounds
 		<float> width | <float> height
 
@@ -61,3 +64,15 @@ g00:	geometry change state
 
 g10:	guids and properties of geometry being added
 		<int> geo type | <string> GUID | <string> layer | <int> spans | [double] coordinates
+
+
+a series
+information recorded about geometry attribute changes
+
+a00:	overall attribute change state
+
+a01:	object-level attribute change states, persistent
+
+a10:	attribute changes being sent from rhino
+
+a11:	safe copy of a10

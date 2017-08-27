@@ -32,6 +32,7 @@ else
 //0 - Type
 //  0 - Linear curve
 //  1 - Linear polyline
+//  2 - Any non-linear curve
 //1 - GUID
 //2 - Layer
 //3 - Span Count
@@ -59,6 +60,7 @@ else
 
             //Create geometry.
             if (type == 0) {
+                //Convert linear curve to illustrator.
                 var points = dataset[4].split(",");
 
                 var x1 = points[0].substring(0, tolerance) * conversion;
@@ -88,48 +90,84 @@ else
                 newPath.move(activeLayer, ElementPlacement.PLACEATEND);
             }
 
-            if (type == 1) {
-                for (c = 0, len2 = spans; c < len2; c++) {
+            else if (type == 1) {
+
+                var points = dataset[4].split(",");
+
+                var newPath = doc.pathItems.add();
+
+                newPath.stroked = true;
+                newPath.filled = false;
+
+                for (c = 0, len2 = spans + 1; c < len2; c++) {
+                    //Iterate through all points.
+                    var x = points[c * 2].substring(0, tolerance) * conversion;
+                    var y = points[(c * 2) + 1].substring(0, tolerance) * conversion;
+
+                    var newPoint = newPath.pathPoints.add();
+                    newPoint.anchor = [x, y];
+                    newPoint.leftDirection = newPoint.anchor;
+                    newPoint.rightDirection = newPoint.anchor;
+                    newPoint.pointType = PointType.CORNER;
+                }
+
+                app.redraw();
+
+                newPath.name = guid;
+                newPath.move(activeLayer, ElementPlacement.PLACEATEND);
+            }
+
+            else if (type == 2)
+            {
+                var allPoints = dataset[4].split(";");
+
+                var newPath = doc.pathItems.add();
+
+                newPath.stroked = true;
+                newPath.filled = false;
+
+                for (c = 0, len2 = allPoints.length; c < len2; c++)
+                {
+                    var newPointData = allPoints[c].split(":");
+                    //Curve data structure, newPointData[]:
+                    //0 - anchorX
+                    //1 - anchorY
+                    //2 - leftDirX
+                    //3 - leftDirY
+                    //4 - rightDirX
+                    //5 - rightDirY
+
+                    var anchorX = newPointData[0].substring(0, tolerance) * conversion;
+                    var anchorY = newPointData[1].substring(0, tolerance) * conversion;
+                    var leftDirX = newPointData[2].substring(0, tolerance) * conversion;
+                    var leftDirY = newPointData[3].substring(0, tolerance) * conversion;
+                    var rightDirX = newPointData[4].substring(0, tolerance) * conversion;
+                    var rightDirY = newPointData[5].substring(0, tolerance) * conversion;
+
+                    var newPoint = newPath.pathPoints.add();
+                    newPoint.anchor = [anchorX, anchorY];
+                    newPoint.leftDirection = [leftDirX, leftDirY];
+                    newPoint.rightDirection = [rightDirX, rightDirY];
+
+                    if (c == 0 || c == len2 - 1) 
+                    {
+                        newPoint.pointType = PointType.CORNER;
+                    }
+                    else 
+                    {
+                        newPoint.pointType = PointType.CORNER;
+                    }
 
                 }
+
+                //Redraw after all points added.
+                app.redraw();
+
+                newPath.name = guid;
+                newPath.move(activeLayer, ElementPlacement.PLACEATEND);
             }
 
         } //finally
-
-
-    /* Previous reference:
-    var pathName =  data[0];
-var pathLayer = data[1];
-//TODO: store points within their own array
-var points = data[2].split(",");
-var x1 = points[0].substring(0,5) * conv;
-var y1 = points[1].substring(0,5) * conv;
-var x2 = points[2].substring(0,5) * conv;
-var y2 = points[3].substring(0,5) * conv;
-
-var myLine = doc.pathItems.add();
-//set stroked to true so we can see the path
-myLine.stroked = true;
-var newPoint = myLine.pathPoints.add();
-newPoint.anchor = [x1,y1];
-//bugCatcher++;
-
-//giving the direction points the same value as the
-//anchor point creates a straight line segment
-newPoint.leftDirection = newPoint.anchor;
-newPoint.rightDirection = newPoint.anchor;
-newPoint.pointType = PointType.CORNER;
-var newPoint1 = myLine.pathPoints.add();
-newPoint1.anchor = [x2,y2];
-newPoint1.leftDirection = newPoint1.anchor;
-newPoint1.rightDirection = newPoint1.anchor;
-newPoint1.pointType = PointType.CORNER;
-
-
-app.redraw();
-
-myLine.name = arguments[1];
-    */
 
     }
 
