@@ -41,8 +41,8 @@ namespace natalus.outbound
             Guid incomingGuid = geo.Id;
             Rhino.Geometry.Curve newCurve = null;
 
-            int incomingLayerIndex = geo.Attributes.LayerIndex;
-            Rhino.DocObjects.Layer incomingLayer = Rhino.RhinoDoc.ActiveDoc.Layers.CurrentLayer;
+            int layerIndex = geo.Attributes.LayerIndex;
+            Rhino.DocObjects.Layer incomingLayer = Rhino.RhinoDoc.ActiveDoc.Layers[layerIndex];
             string incomingLayerName = incomingLayer.Name;
 
             Rhino.DocObjects.ObjRef oRef = new Rhino.DocObjects.ObjRef(incomingGuid);
@@ -115,10 +115,10 @@ namespace natalus.outbound
                         double activeParameter = newCurve.SpanDomain(i).Min;
                         Rhino.Geometry.Point3d activePoint = newCurve.PointAt(activeParameter);
 
-                        double activeX = activePoint.X;
+                        double activeX = activePoint.X - refPointX;
                         coords.Add(activeX.ToString());
 
-                        double activeY = activePoint.Y;
+                        double activeY = activePoint.Y - refPointY;
                         coords.Add(activeY.ToString());
 
                         if (i == spanCount - 1)
@@ -127,10 +127,10 @@ namespace natalus.outbound
                             double finalParameter = newCurve.SpanDomain(i).Max;
                             Rhino.Geometry.Point3d finalPoint = newCurve.PointAt(finalParameter);
 
-                            double finalX = finalPoint.X;
+                            double finalX = finalPoint.X - refPointX;
                             coords.Add(finalX.ToString());
 
-                            double finalY = finalPoint.Y;
+                            double finalY = finalPoint.Y - refPointY;
                             coords.Add(finalY.ToString());
                         }
                     }
