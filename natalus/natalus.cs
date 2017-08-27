@@ -74,8 +74,8 @@ namespace natalus
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Fatal error locating artboard reference in Rhino.");
                 }
             }
-            else if (sendBool == false)
-            {
+            else if (sendBool == false) { 
+
                 utils.properties.setPushState(sendBool);
                 utils.properties.setSelPushState(selBool);
 
@@ -145,6 +145,7 @@ namespace natalus
             //RhinoDoc.BeginSaveDocument
             //ea.FileName is new save name, can be used for new path to copy to.
 
+            /* TODO: Temporarily removed for release.
             ////INBOUND
             //Begin inbound data process if requested.
             bool receiveBool = false;
@@ -163,7 +164,7 @@ namespace natalus
             {
                 //If not receiving data, let sending boolean be what's set by the user.
                 utils.properties.setPushState(sendBool);
-            }
+            } */
         }
 
         public override Guid ComponentGuid
