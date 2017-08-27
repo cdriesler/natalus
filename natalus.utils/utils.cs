@@ -363,6 +363,20 @@ namespace natalus.utils
             string path = file_structure.getPathFor("x10");
             System.IO.File.WriteAllText(path, newState.ToString());
         }
+
+        public static bool getSelPushState()
+        {
+            string path = file_structure.getPathFor("x30");
+            bool state = Convert.ToBoolean(System.IO.File.ReadAllText(path));
+
+            return state;
+        }
+
+        public static void setSelPushState(bool newState)
+        {
+            string path = file_structure.getPathFor("x30");
+            System.IO.File.WriteAllText(path, newState.ToString());
+        }
     }
 
     public class units

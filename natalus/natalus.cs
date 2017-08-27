@@ -13,19 +13,20 @@ using echo;
 using natalus.inbound;
 using natalus.outbound;
 using natalus.utils;
+using System.Drawing;
 
 namespace natalus
 {
     public class natalus : GH_Component
     {
-        public natalus() : base("Natalus", "NATA", "Maintains information handshake between Rhino and Illustrator.", "natalus", "main")
+        public natalus() : base("Natalus", "NATA", "Maintains information handshake between Rhino and Illustrator.", "Params", "Util")
         {
         }
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddBooleanParameter("Send", "->", "Set to true to allow live sync. Use the button component to manually update.", GH_ParamAccess.item, false);
-            pManager.AddBooleanParameter("Receive", "<-", "Toggle to pull unsynced data from illustrator.", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Send Geometry", "G>", "Set to true to allow live transfer of geometry data.", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Send Selection", "S>", "Set to true to allow live transfer of selection.", GH_ParamAccess.item, false);
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -57,9 +58,13 @@ namespace natalus
             bool sendBool = false;
             DA.GetData(0, ref sendBool);
 
+            bool selBool = false;
+            DA.GetData(1, ref selBool);
+
             if (sendBool == true)
             {
                 utils.properties.setPushState(sendBool);
+                utils.properties.setSelPushState(selBool);
 
                 //Initialize docbox!
                 string docBoxTest = utils.properties.tryGetDocBox();
@@ -72,6 +77,7 @@ namespace natalus
             else if (sendBool == false)
             {
                 utils.properties.setPushState(sendBool);
+                utils.properties.setSelPushState(selBool);
 
                 outbound.push.clearGeometryNata();
                 outbound.push.clearSelectionNata();
@@ -168,7 +174,7 @@ namespace natalus
         ////Selection event functions.
         public void OnSelectionIncrease(object sender, RhinoObjectSelectionEventArgs ea, bool sendBool)
         {
-            sendBool = utils.properties.getPushState();
+            sendBool = utils.properties.getSelPushState();
 
             if (sendBool == false)
             {
@@ -182,7 +188,7 @@ namespace natalus
 
         public void ImplicitSelectionIncrease(object sender, RhinoObjectEventArgs ea, bool sendBool)
         {
-            sendBool = utils.properties.getPushState();
+            sendBool = utils.properties.getSelPushState();
 
             if (sendBool == false)
             {
@@ -199,7 +205,7 @@ namespace natalus
 
         public void OnSelectionDecrease(object sender, RhinoObjectSelectionEventArgs ea, bool sendBool)
         {
-            sendBool = utils.properties.getPushState();
+            sendBool = utils.properties.getSelPushState();
 
             if (sendBool == false)
             {
@@ -213,7 +219,7 @@ namespace natalus
 
         public void ImplicitSelectionDecrease(object sender, RhinoObjectEventArgs ea, bool sendBool)
         {
-            sendBool = utils.properties.getPushState();
+            sendBool = utils.properties.getSelPushState();
 
             if (sendBool == false)
             {
@@ -230,7 +236,7 @@ namespace natalus
 
         public void OnSelectionReset(bool sendBool)
         {
-            sendBool = utils.properties.getPushState();
+            sendBool = utils.properties.getSelPushState();
 
             if (sendBool == false)
             {
@@ -245,6 +251,9 @@ namespace natalus
         public void OnIdle(bool sendBool)
         {
             sendBool = utils.properties.getPushState();
+            bool selSendBool = utils.properties.getSelPushState();
+
+            int geoState = 0;
 
             if (sendBool == false)
             {
@@ -254,8 +263,7 @@ namespace natalus
             {
                 //Parse changes in geometry.
                 string geoDeltaState = utils.file_structure.getPathFor("G00");
-                int geoState = 0;
-                int selState = 0;
+
                 if (System.IO.File.Exists(geoDeltaState) == false)
                 {
                     geoState = 0;
@@ -274,9 +282,17 @@ namespace natalus
                 {
 
                 }
+            }
 
+            if (selSendBool == false)
+            {
+                //Do nothing.
+            }
+            else if (selSendBool == true)
+            {
                 //Parse changes in selection.
                 string selectionState = utils.file_structure.getPathFor("S00");
+                int selState = 0;
                 if (System.IO.File.Exists(selectionState) == false)
                 {
                     selState = 0;
@@ -292,7 +308,6 @@ namespace natalus
                 {
                     outbound.push.selectionToIllustrator(selState);
                 }
-
             }
         }
 
@@ -501,6 +516,14 @@ namespace natalus
                         //Added object is not a curve, do nothing.
                     }
                 }
+            }
+        }
+
+        protected override System.Drawing.Bitmap Icon
+        {
+            get
+            {
+                return Properties.Resources.icon;
             }
         }
     }
