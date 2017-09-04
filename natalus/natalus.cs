@@ -140,6 +140,10 @@ namespace natalus
             RhinoDoc.BeforeTransformObjects -= (sender, ea) => TransformUpdateState(ea);
             RhinoDoc.BeforeTransformObjects += (sender, ea) => TransformUpdateState(ea);
 
+            //ATTRIBUTES
+
+            RhinoDoc.ModifyObjectAttributes -= (sender, ea) => OnUpdateAttributes(ea);
+            RhinoDoc.ModifyObjectAttributes += (sender, ea) => OnUpdateAttributes(ea);
 
             //When doc saved, copy critical existing data if file name changed. (x10, D01, D10)
             //RhinoDoc.BeginSaveDocument
@@ -518,6 +522,25 @@ namespace natalus
                     }
                 }
             }
+        }
+
+        public static void OnUpdateAttributes(Rhino.DocObjects.RhinoModifyObjectAttributesEventArgs ea)
+        {
+            /*
+            if (ea.NewAttributes.LayerIndex == ea.OldAttributes.LayerIndex)
+            {
+                debug.alert("Layer did not change!");
+            }
+            else if (ea.NewAttributes.LayerIndex != ea.OldAttributes.LayerIndex)
+            {
+                debug.alert("Layer changed to " + Rhino.RhinoDoc.ActiveDoc.Layers[ea.NewAttributes.LayerIndex].Name);
+            } 
+            */
+
+            string A00_Path = utils.file_structure.getPathFor("A00");
+            System.IO.File.WriteAllText(A00_Path, "1");
+
+            outbound.translate.attributes(ea);
         }
 
         protected override System.Drawing.Bitmap Icon

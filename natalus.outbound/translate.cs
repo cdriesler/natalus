@@ -261,5 +261,39 @@ namespace natalus.outbound
             //Cache deleted items to G20.
             System.IO.File.AppendAllText(G20_Path, geo.Id.ToString() + Environment.NewLine);
         }
+
+        public static void attributes(Rhino.DocObjects.RhinoModifyObjectAttributesEventArgs ea)
+        {
+            //Translate attributes.
+
+            //Tranformation codes:
+            //1     layer
+            //2     color
+            //4     stroke weight
+            //8     x
+            //16    x
+            //
+            //Ex: attDeltaCode = 3 means layer and color were updated
+
+            //Track what attributes just changed.
+            int attDeltaCode = 0;
+
+            if (ea.NewAttributes.LayerIndex != ea.OldAttributes.LayerIndex)
+            {
+                attDeltaCode = attDeltaCode + 1;
+            }
+            
+            if (ea.NewAttributes.ObjectColor != ea.OldAttributes.ObjectColor)
+            {
+                attDeltaCode = attDeltaCode + 2;
+            }
+
+            if (ea.NewAttributes.PlotWeight != ea.OldAttributes.PlotWeight)
+            {
+                attDeltaCode = attDeltaCode + 4;
+            }
+
+            //utils.debug.alert(Convert.ToString(attDeltaCode, 2));
+        }
     }
 }
